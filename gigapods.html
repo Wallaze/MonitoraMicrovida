@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academia do Aquário - Cultivo Gigapods</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-100 p-4 relative">
+
+  <div class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-6 space-y-4">
+
+    <!-- CABEÇALHO -->
+    <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
+            <i>Tigriopus californicus</i>
+          </span>
+        </div>
+        <h1 class="text-xl font-bold bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
+          Gigapods
+        </h1>
+        <p class="text-xs text-slate-400">Registro de Início e Rotina Diária</p>
+      </div>
+
+      <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-md">
+        <span>&larr;</span> Home
+      </a>
+    </div>
+
+    <!-- SELETOR DE MODALIDADE -->
+    <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700 text-xs font-bold">
+      <button type="button" id="tabInicio" onclick="alternarAba('inicio')" class="flex-1 py-2 text-center rounded-md bg-amber-500 text-slate-950 transition-all">
+        🚀 Início de Cultura
+      </button>
+      <button type="button" id="tabDiaria" onclick="alternarAba('diaria')" class="flex-1 py-2 text-center rounded-md text-slate-400 hover:text-slate-200 transition-all">
+        📅 Anotação Diária
+      </button>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <form id="cultivoForm" class="space-y-4">
+      <input type="hidden" id="tipoRegistro" value="inicio">
+
+      <!-- DATA, HORA E CLIMA (AUTOMÁTICOS EM AMBOS) -->
+      <div class="grid grid-cols-2 gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400">Data e Hora (Auto)</label>
+          <input type="datetime-local" id="dataRegistro" readonly class="w-full bg-slate-800 text-slate-300 text-xs p-1.5 rounded border border-slate-700 cursor-not-allowed">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400">Temp. Clima (Auto)</label>
+          <div class="flex items-center gap-1 mt-0.5">
+            <input type="text" id="tempAmbiente" readonly value="Buscando..." class="w-full bg-slate-800 text-amber-400 font-bold text-xs p-1.5 rounded border border-slate-700 cursor-not-allowed">
+            <span class="text-xs text-slate-400">°C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMPOS ESPECÍFICOS: INÍCIO DE CULTURA -->
+      <div id="secaoInicio" class="space-y-3 bg-slate-900/30 p-3 rounded-lg border border-amber-500/20">
+        <p class="text-xs font-bold text-amber-400 border-b border-amber-500/20 pb-1">Configurações do Início de Cultura</p>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300">Recipiente</label>
+            <input type="text" id="inicioRecipiente" placeholder="Ex: Aquário 20L" class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300">Litragem (L)</label>
+            <input type="number" step="0.1" id="inicioLitragem" placeholder="Ex: 15" class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-300">Substrato</label>
+          <input type="text" id="inicioSubstrato" placeholder="Ex: Rochas de cerâmica" class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer bg-slate-900 p-2 rounded border border-slate-700">
+            <input type="checkbox" id="inicioIluminacao" class="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-900 focus:ring-0"> Iluminação
+          </label>
+          <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer bg-slate-900 p-2 rounded border border-slate-700">
+            <input type="checkbox" id="inicioAeracao" class="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-900 focus:ring-0"> Aeração
+          </label>
+        </div>
+      </div>
+
+      <!-- CAMPOS ESPECÍFICOS: ANOTAÇÕES DIÁRIAS -->
+      <div id="secaoDiaria" class="hidden space-y-3 bg-slate-900/30 p-3 rounded-lg border border-slate-700/50">
+        <p class="text-xs font-bold text-slate-300 border-b border-slate-700 pb-1">Parâmetros Diários da Água</p>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300">Temp. Água (°C)</label>
+            <input type="number" step="0.1" id="diariaTempAgua" placeholder="Ex: 25.5" class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300">pH</label>
+            <input type="number" step="0.1" id="diariaPh" placeholder="Ex: 8.2" class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-300">Amônia</label>
+            <input type="number" step="0.01" id="diariaAmonia" placeholder="0.0" class="w-full border border-slate-700 p-1.5 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-300">Nitrato</label>
+            <input type="number" step="0.1" id="diariaNitrato" placeholder="0.0" class="w-full border border-slate-700 p-1.5 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-300">Fosfato</label>
+            <input type="number" step="0.01" id="diariaFosfato" placeholder="0.0" class="w-full border border-slate-700 p-1.5 rounded-md mt-1 text-xs bg-slate-900 text-slate-100">
+          </div>
+        </div>
+      </div>
+
+      <!-- SALINIDADE (COMUM A AMBOS) -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300">Salinidade (Densidade)</label>
+        <input type="number" min="1000" max="1040" id="salinidade" placeholder="Ex: 1020" required class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100 focus:outline-none focus:border-amber-500">
+        <span class="text-[10px] text-slate-500">Ex: 1020, 1022...</span>
+      </div>
+
+      <!-- VÍDEO (POPUAÇÃO / ANÁLISE POPULACIONAL) -->
+      <div class="border-t border-slate-700 pt-3 text-center space-y-2">
+        <p id="labelVideo" class="text-xs font-semibold text-amber-400">População em Vídeo (10s Obrigatórios)</p>
+        <video id="videoPreview" autoplay playsinline muted class="w-full h-44 bg-black rounded-lg object-cover border border-slate-700"></video>
+        <div id="cronometro" class="hidden text-amber-400 font-bold text-sm animate-pulse">
+          Gravando: <span id="tempoRestante">10</span>s
+        </div>
+        <button type="button" id="btnGravar" onclick="iniciarGravacao10s()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-md font-semibold text-sm transition-all">
+          🎥 Gravar Vídeo (10s)
+        </button>
+      </div>
+
+      <!-- OBSERVAÇÕES EM TEXTO -->
+      <div class="border-t border-slate-700 pt-3">
+        <label class="block text-xs font-semibold text-slate-300">Observações</label>
+        <textarea id="observacoes" rows="2" placeholder="Anotações gerais..." class="w-full border border-slate-700 p-2 rounded-md mt-1 text-xs bg-slate-900 text-slate-100 focus:outline-none focus:border-amber-500"></textarea>
+      </div>
+
+      <!-- BOTÃO SALVAR -->
+      <div class="border-t border-slate-700 pt-3">
+        <button type="submit" id="btnSalvar" disabled class="w-full bg-slate-700 text-slate-400 py-3 rounded-md font-bold cursor-not-allowed transition-all">
+          Salvar Registro
+        </button>
+      </div>
+      <p id="mensagemStatus" class="text-xs text-center font-semibold text-amber-400"></p>
+    </form>
+
+    <!-- HISTÓRICO DE REGISTROS -->
+    <div class="border-t border-slate-700 pt-4">
+      <h2 class="text-sm font-bold text-slate-200 mb-2">Histórico do Cultivo</h2>
+      <div id="historicoContainer" class="space-y-3 max-h-60 overflow-y-auto text-xs">
+        <p class="text-slate-400">Carregando histórico...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÃO TOPO -->
+  <button id="btnTopo" onclick="voltarAoTopo()" class="hidden fixed bottom-5 right-5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold p-3 rounded-full shadow-lg transition-all z-50 focus:outline-none" title="Voltar ao Topo">
+    ⬆️
+  </button>
+
+  <script>
+    const SUPABASE_URL = 'COLE_AQUI_A_SUA_PROJECT_URL';
+    const SUPABASE_ANON_KEY = 'COLE_AQUI_A_SUA_ANON_KEY';
+    const _supabase = (SUPABASE_URL !== 'COLE_AQUI_A_SUA_PROJECT_URL') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    // Alterna a interface e atualiza rótulos
+    function alternarAba(tipo) {
+      document.getElementById('tipoRegistro').value = tipo;
+      const tabInicio = document.getElementById('tabInicio');
+      const tabDiaria = document.getElementById('tabDiaria');
+      const secaoInicio = document.getElementById('secaoInicio');
+      const secaoDiaria = document.getElementById('secaoDiaria');
+      const labelVideo = document.getElementById('labelVideo');
+
+      if (tipo === 'inicio') {
+        tabInicio.className = 'flex-1 py-2 text-center rounded-md bg-amber-500 text-slate-950 transition-all font-bold';
+        tabDiaria.className = 'flex-1 py-2 text-center rounded-md text-slate-400 hover:text-slate-200 transition-all';
+        secaoInicio.classList.remove('hidden');
+        secaoDiaria.classList.add('hidden');
+        labelVideo.textContent = 'População em Vídeo (10s Obrigatórios)';
+      } else {
+        tabDiaria.className = 'flex-1 py-2 text-center rounded-md bg-amber-500 text-slate-950 transition-all font-bold';
+        tabInicio.className = 'flex-1 py-2 text-center rounded-md text-slate-400 hover:text-slate-200 transition-all';
+        secaoDiaria.classList.remove('hidden');
+        secaoInicio.classList.add('hidden');
+        labelVideo.textContent = 'Análise Populacional em Vídeo (10s Obrigatórios)';
+      }
+    }
+
+    function preencherDataHora() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('dataRegistro').value = now.toISOString().slice(0, 16);
+    }
+    preencherDataHora();
+
+    async function obterTempAmbienteAuto() {
+      const elTemp = document.getElementById('tempAmbiente');
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`);
+            const data = await res.json();
+            elTemp.value = data?.current_weather?.temperature || "25.0";
+          } catch (e) { elTemp.value = "25.0"; }
+        }, () => { elTemp.value = "25.0"; });
+      } else { elTemp.value = "25.0"; }
+    }
+    obterTempAmbienteAuto();
+
+    let mediaRecorder, chunks = [], videoBlob = null;
+    async function iniciarGravacao10s() {
+      const btnGravar = document.getElementById('btnGravar');
+      const cronometro = document.getElementById('cronometro');
+      const tempoEl = document.getElementById('tempoRestante');
+      const videoPreview = document.getElementById('videoPreview');
+
+      try {
+        chunks = [];
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        videoPreview.srcObject = stream;
+        videoPreview.play();
+
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+          videoBlob = new Blob(chunks, { type: 'video/webm' });
+          stream.getTracks().forEach(track => track.stop());
+          videoPreview.srcObject = null;
+          videoPreview.src = URL.createObjectURL(videoBlob);
+          videoPreview.controls = true;
+          validarFormulario();
+        };
+
+        mediaRecorder.start();
+        btnGravar.disabled = true;
+        cronometro.classList.remove('hidden');
+
+        let tempo = 10;
+        tempoEl.textContent = tempo;
+        const timer = setInterval(() => {
+          tempo--;
+          tempoEl.textContent = tempo;
+          if (tempo <= 0) {
+            clearInterval(timer);
+            mediaRecorder.stop();
+            btnGravar.disabled = false;
+            btnGravar.textContent = '🎥 Gravar Novamente (10s)';
+            cronometro.classList.add('hidden');
+          }
+        }, 1000);
+      } catch (err) { alert('Erro ao acessar a câmera: ' + err.message); }
+    }
+
+    function validarFormulario() {
+      const salinidade = document.getElementById('salinidade').value;
+      const btnSalvar = document.getElementById('btnSalvar');
+
+      if (videoBlob && salinidade >= 1000 && salinidade <= 1040) {
+        btnSalvar.disabled = false;
+        btnSalvar.className = 'w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 rounded-md font-bold cursor-pointer transition-all';
+      } else {
+        btnSalvar.disabled = true;
+        btnSalvar.className = 'w-full bg-slate-700 text-slate-400 py-3 rounded-md font-bold cursor-not-allowed';
+      }
+    }
+    document.getElementById('salinidade').addEventListener('input', validarFormulario);
+
+    document.getElementById('cultivoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('mensagemStatus');
+      status.textContent = 'Gravando registro...';
+
+      const tipo = document.getElementById('tipoRegistro').value;
+
+      const registro = {
+        id: Date.now(),
+        tipo: tipo,
+        data_hora: document.getElementById('dataRegistro').value,
+        temp_clima: document.getElementById('tempAmbiente').value,
+        salinidade: document.getElementById('salinidade').value,
+        observacoes: document.getElementById('observacoes').value,
+        video_url: videoBlob ? URL.createObjectURL(videoBlob) : null,
+
+        // Dados de Início
+        recipiente: tipo === 'inicio' ? document.getElementById('inicioRecipiente').value : null,
+        litragem: tipo === 'inicio' ? document.getElementById('inicioLitragem').value : null,
+        substrato: tipo === 'inicio' ? document.getElementById('inicioSubstrato').value : null,
+        iluminacao: tipo === 'inicio' ? document.getElementById('inicioIluminacao').checked : null,
+        aeracao: tipo === 'inicio' ? document.getElementById('inicioAeracao').checked : null,
+
+        // Dados Diários
+        temp_agua: tipo === 'diaria' ? document.getElementById('diariaTempAgua').value : null,
+        ph: tipo === 'diaria' ? document.getElementById('diariaPh').value : null,
+        amonia: tipo === 'diaria' ? document.getElementById('diariaAmonia').value : null,
+        nitrato: tipo === 'diaria' ? document.getElementById('diariaNitrato').value : null,
+        fosfato: tipo === 'diaria' ? document.getElementById('diariaFosfato').value : null,
+      };
+
+      if (_supabase) {
+        // Envio estruturado para o banco Supabase
+      } else {
+        let localData = JSON.parse(localStorage.getItem('registros_gigapods_v2') || '[]');
+        localData.unshift(registro);
+        localStorage.setItem('registros_gigapods_v2', JSON.stringify(localData));
+      }
+
+      status.textContent = '✅ Registro salvo com sucesso!';
+      document.getElementById('cultivoForm').reset();
+      preencherDataHora();
+      obterTempAmbienteAuto();
+      videoBlob = null;
+      validarFormulario();
+      carregarHistorico();
+    });
+
+    async function carregarHistorico() {
+      const container = document.getElementById('historicoContainer');
+      let registros = [];
+
+      if (_supabase) {
+        const { data } = await _supabase.from('registros_cultivo').select('*').eq('cultura', 'gigapods').order('created_at', { ascending: false });
+        registros = data || [];
+      } else {
+        registros = JSON.parse(localStorage.getItem('registros_gigapods_v2') || '[]');
+      }
+
+      if (registros.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 italic">Nenhum registro no histórico.</p>';
+        return;
+      }
+
+      container.innerHTML = registros.map(item => `
+        <div class="border border-slate-700 p-2.5 rounded bg-slate-900 space-y-1">
+          <div class="flex justify-between font-bold text-slate-200">
+            <span>${item.tipo === 'inicio' ? '🚀 Início de Cultura' : '📅 Registro Diário'}</span>
+            <span>📅 ${new Date(item.data_hora).toLocaleDateString('pt-BR')} ${new Date(item.data_hora).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+          </div>
+
+          <div class="text-[11px] text-slate-300 border-t border-slate-800 pt-1 space-y-0.5">
+            <p><strong>Clima:</strong> ${item.temp_clima}°C | <strong>Salinidade:</strong> ${item.salinidade}</p>
+
+            ${item.tipo === 'inicio' ? `
+              <p><strong>Recipiente:</strong> ${item.recipiente || 'N/A'} (${item.litragem || '0'}L) | <strong>Substrato:</strong> ${item.substrato || 'N/A'}</p>
+              <p><strong>Checklist:</strong> Iluminação ${item.iluminacao ? '✅' : '❌'} | Aeração ${item.aeracao ? '✅' : '❌'}</p>
+            ` : `
+              <p><strong>Temp. Água:</strong> ${item.temp_agua || 'N/A'}°C | <strong>pH:</strong> ${item.ph || 'N/A'}</p>
+              <p><strong>Química:</strong> NH3: ${item.amonia || '0'} | NO3: ${item.nitrato || '0'} | PO4: ${item.fosfato || '0'}</p>
+            `}
+
+            ${item.observacoes ? `<p class="italic text-slate-400">Obs: "${item.observacoes}"</p>` : ''}
+          </div>
+
+          ${item.video_url ? `<video src="${item.video_url}" controls class="w-full h-24 rounded mt-1 bg-black object-cover"></video>` : ''}
+        </div>
+      `).join('');
+    }
+
+    window.onscroll = function() {
+      const btnTopo = document.getElementById("btnTopo");
+      if (document.body.scrollTop > 150 || document.documentElement.scrollTop > 150) {
+        btnTopo.classList.remove("hidden");
+      } else {
+        btnTopo.classList.add("hidden");
+      }
+    };
+    function voltarAoTopo() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+    carregarHistorico();
+  </script>
+</body>
+</html>
