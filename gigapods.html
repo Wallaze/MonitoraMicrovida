@@ -18,8 +18,8 @@
   <!-- CSS Global -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Script da Página -->
-  <script src="gigapods.js" defer></script>
+  <!-- Script Global Compartilhado -->
+  <script src="script.js" defer></script>
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-100 p-4 relative flex flex-col items-center">
 
@@ -223,11 +223,11 @@
   </div>
 
   <!-- Botão Voltar ao Topo -->
-  <button id="btnTopo" class="hidden fixed bottom-5 right-5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold p-3 rounded-full shadow-lg transition-all z-50 focus:outline-none no-print" title="Voltar ao Topo">
+  <button id="btnTopo" onclick="voltarAoTopo()" class="hidden fixed bottom-5 right-5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold p-3 rounded-full shadow-lg transition-all z-50 focus:outline-none no-print" title="Voltar ao Topo">
     ⬆️
   </button>
 
-  <!-- Script inline complementar de atalho visual para a alternância das abas -->
+  <!-- Script inline de atalho visual para a alternância das abas -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const tabInicio = document.getElementById('tabInicio');
