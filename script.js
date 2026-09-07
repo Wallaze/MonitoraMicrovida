@@ -9,7 +9,7 @@ let mediaRecorder = null;
 let chunks = [];
 let videoBlob = null;
 
-// --- ALTERAR ABA (MANTIDO 100% ORIGINAL) ---
+// --- ALTERAR ABA ---
 window.alternarAba = function(tipo) {
   const inputTipo = document.getElementById('tipoRegistro');
   if (inputTipo) inputTipo.value = tipo;
@@ -35,7 +35,7 @@ window.alternarAba = function(tipo) {
   }
 };
 
-// --- PREENCHER DATA E HORA (MANTIDO ORIGINAL) ---
+// --- PREENCHER DATA E HORA ---
 window.preencherDataHora = function() {
   const el = document.getElementById('dataRegistro');
   if (!el) return;
@@ -44,7 +44,7 @@ window.preencherDataHora = function() {
   el.value = now.toISOString().slice(0, 16);
 };
 
-// --- OBTER TEMPERATURA AMBIENTE (MANTIDO ORIGINAL) ---
+// --- OBTER TEMPERATURA AMBIENTE ---
 window.obterTempAmbienteAuto = async function() {
   const elTemp = document.getElementById('tempAmbiente');
   if (!elTemp) return;
@@ -60,7 +60,7 @@ window.obterTempAmbienteAuto = async function() {
   } else { elTemp.value = "25.0"; }
 };
 
-// --- GRAVAÇÃO DE VÍDEO (AJUSTADO APENAS O BITRATE E RESOLUÇÃO CONTRA TRAVAMENTO) ---
+// --- GRAVAÇÃO DE VÍDEO (CORRIGIDA) ---
 window.iniciarGravacao10s = async function() {
   const btnGravar = document.getElementById('btnGravar');
   const cronometro = document.getElementById('cronometro');
@@ -69,24 +69,37 @@ window.iniciarGravacao10s = async function() {
 
   try {
     chunks = [];
-    // Limita a resolução em 480p para não estourar a memória RAM do Android em 4K
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" }, width: { ideal: 640 }, height: { ideal: 480 } },
-      audio: false
-    });
+    let stream = null;
 
-    videoPreview.srcObject = stream;
-    videoPreview.play();
+    // Tentativa com fallback para garantir acesso à câmera sem lançar erro de restrição rígida
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: { max: 1280 }, height: { max: 720 } },
+        audio: false
+      });
+    } catch (e1) {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    }
 
-    let options = { videoBitsPerSecond: 400000 };
-    if (typeof MediaRecorder !== "undefined") {
+    if (videoPreview) {
+      videoPreview.srcObject = stream;
+      videoPreview.muted = true;
+      videoPreview.play().catch(() => {});
+    }
+
+    // Identificação flexível do mimeType suportado
+    let options = {};
+    if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
       if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options.mimeType = 'video/webm;codecs=vp8';
       else if (MediaRecorder.isTypeSupported('video/webm')) options.mimeType = 'video/webm';
       else if (MediaRecorder.isTypeSupported('video/mp4')) options.mimeType = 'video/mp4';
     }
 
-    try { mediaRecorder = new MediaRecorder(stream, options); } 
-    catch (e) { mediaRecorder = new MediaRecorder(stream); }
+    try {
+      mediaRecorder = new MediaRecorder(stream, options);
+    } catch (e2) {
+      mediaRecorder = new MediaRecorder(stream);
+    }
 
     mediaRecorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) chunks.push(e.data);
@@ -97,16 +110,20 @@ window.iniciarGravacao10s = async function() {
       videoBlob = new Blob(chunks, { type: mime });
 
       stream.getTracks().forEach(track => track.stop());
-      videoPreview.srcObject = null;
-      videoPreview.src = URL.createObjectURL(videoBlob);
-      videoPreview.controls = true;
-      videoPreview.loop = true;
-      videoPreview.play();
-      
+
+      if (videoPreview) {
+        videoPreview.srcObject = null;
+        videoPreview.src = URL.createObjectURL(videoBlob);
+        videoPreview.controls = true;
+        videoPreview.loop = true;
+        videoPreview.play().catch(() => {});
+      }
+
       window.validarFormulario();
     };
 
-    mediaRecorder.start();
+    mediaRecorder.start(1000);
+    
     if (btnGravar) {
       btnGravar.disabled = true;
       btnGravar.classList.add('opacity-50', 'cursor-not-allowed');
@@ -115,12 +132,13 @@ window.iniciarGravacao10s = async function() {
 
     let tempo = 10;
     if (tempoEl) tempoEl.textContent = tempo;
+    
     const timer = setInterval(() => {
       tempo--;
       if (tempoEl) tempoEl.textContent = tempo;
       if (tempo <= 0) {
         clearInterval(timer);
-        if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
         if (btnGravar) {
           btnGravar.disabled = false;
           btnGravar.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -129,12 +147,13 @@ window.iniciarGravacao10s = async function() {
         if (cronometro) cronometro.classList.add('hidden');
       }
     }, 1000);
+
   } catch (err) {
     alert('Erro ao acessar a câmera: ' + err.message);
   }
 };
 
-// --- VALIDAÇÃO DE FORMULÁRIO (MANTIDO ORIGINAL) ---
+// --- VALIDAÇÃO DE FORMULÁRIO ---
 window.validarFormulario = function() {
   const salinidadeEl = document.getElementById('salinidade');
   const btnSalvar = document.getElementById('btnSalvar');
@@ -150,7 +169,7 @@ window.validarFormulario = function() {
   }
 };
 
-// --- CARREGAR HISTÓRICO (MANTIDOS TODOS OS CAMPOS ORIGINAIS) ---
+// --- CARREGAR HISTÓRICO ---
 window.carregarHistorico = async function() {
   const container = document.getElementById('historicoContainer');
   if (!container) return;
@@ -218,7 +237,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const tipo = document.getElementById('tipoRegistro')?.value || 'inicio';
 
-      // COLETANDO TODOS OS SEUS CAMPOS ORIGINAIS
+      // Converte o vídeo para Base64 se estiver rodando localmente (sem Supabase)
+      let videoUrlFinal = null;
+      if (videoBlob) {
+        if (!_supabase) {
+          videoUrlFinal = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(videoBlob);
+          });
+        } else {
+          videoUrlFinal = URL.createObjectURL(videoBlob);
+        }
+      }
+
       const registro = {
         id: Date.now(),
         tipo: tipo,
@@ -226,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         temp_clima: document.getElementById('tempAmbiente')?.value,
         salinidade: document.getElementById('salinidade')?.value,
         observacoes: document.getElementById('observacoes')?.value,
-        video_url: videoBlob ? URL.createObjectURL(videoBlob) : null,
+        video_url: videoUrlFinal,
 
         // Campos do Início de Cultura
         recipiente: tipo === 'inicio' ? document.getElementById('inicioRecipiente')?.value : null,
