@@ -3,62 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Academia do Aquário - Catálogo de Culturas</title>
+  <title>Monitoramento de Culturas</title>
+  <!-- Ícone da aba (Favicon) -->
+  <link rel="icon" type="image/png" href="https://cdn.awsli.com.br/724/724789/arquivos/Logo.png">
+  <!-- Suporte adicional para Apple/iOS -->
+  <link rel="apple-touch-icon" href="https://cdn.awsli.com.br/724/724789/arquivos/Logo.png">
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- CSS Customizado -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen">
 
-  <header class="border-b border-slate-800 bg-slate-900/80 sticky top-0 backdrop-blur z-10">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <div class="bg-cyan-500 text-slate-950 p-2 rounded-lg font-bold text-xl">🔬</div>
-        <div>
-          <h1 class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-teal-200 bg-clip-text text-transparent">
-            Academia do Aquário
-          </h1>
-          <p class="text-xs text-slate-400">Cultivo de Microvida e Alimentos Vivos</p>
-        </div>
+  <!-- Header principal -->
+  <header class="border-b border-slate-800 bg-slate-900/80 sticky top-0 backdrop-blur-md z-10">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:grid md:grid-cols-3 items-center gap-4">
+
+      <!-- Esquerda: Logo -->
+      <div class="flex justify-center md:justify-start items-center">
+        <img src="https://cdn.awsli.com.br/724/724789/arquivos/Logo.png"
+             alt="Logotipo Academia do Aquário"
+             class="h-16 md:h-20 w-auto object-contain">
       </div>
-      <a href="https://wa.me/5521986373126" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-        <span>📲 Atendimento WhatsApp</span>
-      </a>
+
+      <!-- Centro: Título -->
+      <div class="flex justify-center items-center text-center">
+        <h1 class="text-xl md:text-2xl text-cyan-400 font-bold tracking-tight">
+          Monitoramento de Culturas
+        </h1>
+      </div>
+
+      <!-- Direita: Suporte WhatsApp -->
+      <div class="flex justify-center md:justify-end items-center">
+        <a href="https://wa.me/5521973054159"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="inline-flex items-center justify-center gap-2 w-fit bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-950/40 active:scale-95">
+
+           <svg viewBox="0 0 31 30" class="w-5 h-5 fill-current flex-shrink-0" preserveAspectRatio="xMidYMid meet">
+             <path d="M30.31 14.32A14.87 14.87 0 0 0 15.54 0h-.07A14.87 14.87 0 0 0 2.41 22L1.1 29.87a.11.11 0 0 0 .11.13h.02l7.79-1.73c2 .96 4.2 1.47 6.44 1.46h.42a14.86 14.86 0 0 0 14.43-15.4Zm-14.5 12.83h-.35a12.3 12.3 0 0 1-5.67-1.38l-.4-.2-5.27 1.24.97-5.34-.22-.38a12.3 12.3 0 0 1 10.25-18.5h.36a12.29 12.29 0 0 1 .34 24.56h-.01Z"></path>
+             <path d="M10.29 7.69a1.37 1.37 0 0 0-.98.44c-.35.36-1.34 1.23-1.4 3.07-.06 1.84 1.23 3.65 1.4 3.9.18.26 2.46 4.23 6.2 5.84 2.2.95 3.17 1.11 3.8 1.11.25 0 .45-.03.65-.04.69-.04 2.24-.83 2.57-1.7.34-.86.36-1.61.28-1.76-.1-.15-.34-.26-.7-.46-.37-.19-2.18-1.15-2.52-1.29a.91.91 0 0 0-.4-.1.55.55 0 0 0-.44.26c-.3.38-1 1.2-1.23 1.43a.55.55 0 0 1-.4.19.97.97 0 0 1-.41-.11 9.52 9.52 0 0 1-2.94-1.96c-.8-.78-1.47-1.68-2-2.66-.2-.38 0-.57.19-.75.19-.18.39-.42.58-.64.16-.18.29-.38.4-.6a.69.69 0 0 0-.02-.66c-.09-.19-.75-2.05-1.07-2.8-.25-.64-.55-.66-.81-.68a8.15 8.15 0 0 0-.72-.03h-.03"></path>
+           </svg>
+           <span>Suporte</span>
+        </a>
+      </div>
+
     </div>
   </header>
 
+  <!-- Conteúdo principal -->
   <main class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Apresentação -->
     <section class="text-center max-w-2xl mx-auto mb-8">
       <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Selecione a Cultura Desejada</h2>
       <p class="text-slate-400 text-sm">
-        Filtre abaixo pelos nomes comerciais praticados pela Academia do Aquário para registrar ou acompanhar os cultivos.
+        Filtre abaixo pelo nome da cultura para registrar ou acompanhar os cultivos.
       </p>
     </section>
 
-    <!-- Filtros de Seleção -->
+    <!-- Filtros por categoria -->
     <div class="flex flex-wrap justify-center gap-2 mb-10" id="filtros-container">
-      <button onclick="filtrarCultura('todos')" class="btn-filtro active bg-cyan-500 text-slate-950 font-bold px-4 py-2 rounded-full text-sm transition-all border border-cyan-400">
+      <button onclick="filtrarCultura('todos', this)" class="btn-filtro active bg-cyan-500 text-slate-950 font-bold px-4 py-2 rounded-full text-sm transition-all border border-cyan-400">
         Todas as Culturas
       </button>
-      <button onclick="filtrarCultura('gigapods')" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
+      <button onclick="filtrarCultura('gigapods', this)" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
         Gigapods
       </button>
-      <button onclick="filtrarCultura('amphipodes')" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
+      <button onclick="filtrarCultura('amphipodes', this)" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
         Amphipodes
       </button>
-      <button onclick="filtrarCultura('tisbe')" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
+      <button onclick="filtrarCultura('tisbe', this)" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
         Tisbe
       </button>
-      <button onclick="filtrarCultura('rotiferos')" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
+      <button onclick="filtrarCultura('rotiferos', this)" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
         Rotíferos
       </button>
-      <button onclick="filtrarCultura('nano')" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
+      <button onclick="filtrarCultura('nano', this)" class="btn-filtro bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-full text-sm transition-all border border-slate-700">
         Nano
       </button>
     </div>
 
-    <!-- Grid de Culturas -->
+    <!-- Grid de Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-culturas">
 
-      <!-- Gigapods -->
+      <!-- Card: Gigapods -->
       <div class="card-cultura bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-amber-500 transition-all flex flex-col justify-between" data-categoria="gigapods">
         <div>
           <span class="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -78,7 +109,7 @@
         </div>
       </div>
 
-      <!-- Amphipodes -->
+      <!-- Card: Amphipodes -->
       <div class="card-cultura bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-cyan-500 transition-all flex flex-col justify-between" data-categoria="amphipodes">
         <div>
           <span class="inline-block bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -92,11 +123,11 @@
         </div>
         <div class="border-t border-slate-700 pt-4 mt-2 flex justify-between items-center">
           <span class="text-xs text-slate-400">Em Breve</span>
-          <a href="#" class="text-slate-500 text-xs font-semibold cursor-not-allowed">Aguardando Módulo</a>
+          <span class="text-slate-500 text-xs font-semibold cursor-not-allowed select-none" aria-disabled="true">Aguardando Módulo</span>
         </div>
       </div>
 
-      <!-- Tisbe -->
+      <!-- Card: Tisbe -->
       <div class="card-cultura bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-cyan-500 transition-all flex flex-col justify-between" data-categoria="tisbe">
         <div>
           <span class="inline-block bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -110,11 +141,11 @@
         </div>
         <div class="border-t border-slate-700 pt-4 mt-2 flex justify-between items-center">
           <span class="text-xs text-slate-400">Em Breve</span>
-          <a href="#" class="text-slate-500 text-xs font-semibold cursor-not-allowed">Aguardando Módulo</a>
+          <span class="text-slate-500 text-xs font-semibold cursor-not-allowed select-none" aria-disabled="true">Aguardando Módulo</span>
         </div>
       </div>
 
-      <!-- Rotíferos -->
+      <!-- Card: Rotíferos -->
       <div class="card-cultura bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-cyan-500 transition-all flex flex-col justify-between" data-categoria="rotiferos">
         <div>
           <span class="inline-block bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -128,11 +159,11 @@
         </div>
         <div class="border-t border-slate-700 pt-4 mt-2 flex justify-between items-center">
           <span class="text-xs text-slate-400">Em Breve</span>
-          <a href="#" class="text-slate-500 text-xs font-semibold cursor-not-allowed">Aguardando Módulo</a>
+          <span class="text-slate-500 text-xs font-semibold cursor-not-allowed select-none" aria-disabled="true">Aguardando Módulo</span>
         </div>
       </div>
 
-      <!-- Nano -->
+      <!-- Card: Nano -->
       <div class="card-cultura bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-cyan-500 transition-all flex flex-col justify-between" data-categoria="nano">
         <div>
           <span class="inline-block bg-teal-500/10 text-teal-400 border border-teal-500/20 text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -146,26 +177,32 @@
         </div>
         <div class="border-t border-slate-700 pt-4 mt-2 flex justify-between items-center">
           <span class="text-xs text-slate-400">Em Breve</span>
-          <a href="#" class="text-slate-500 text-xs font-semibold cursor-not-allowed">Aguardando Módulo</a>
+          <span class="text-slate-500 text-xs font-semibold cursor-not-allowed select-none" aria-disabled="true">Aguardando Módulo</span>
         </div>
       </div>
 
     </div>
   </main>
 
+  <!-- Script inline para garantir funcionamento imediato dos filtros -->
   <script>
-    function filtrarCultura(categoria) {
+    function filtrarCultura(categoria, elemento) {
       const cards = document.querySelectorAll('.card-cultura');
       const botoes = document.querySelectorAll('.btn-filtro');
 
+      // Reseta visual dos botões
       botoes.forEach(btn => {
         btn.classList.remove('bg-cyan-500', 'text-slate-950', 'font-bold', 'border-cyan-400');
         btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
       });
 
-      event.currentTarget.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
-      event.currentTarget.classList.add('bg-cyan-500', 'text-slate-950', 'font-bold', 'border-cyan-400');
+      // Ativa o botão clicado
+      if (elemento) {
+        elemento.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+        elemento.classList.add('bg-cyan-500', 'text-slate-950', 'font-bold', 'border-cyan-400');
+      }
 
+      // Filtra os cards
       cards.forEach(card => {
         if (categoria === 'todos' || card.getAttribute('data-categoria') === categoria) {
           card.style.display = 'flex';
@@ -175,5 +212,8 @@
       });
     }
   </script>
+
+  <!-- Script externo mantido -->
+  <script src="script.js" defer></script>
 </body>
 </html>

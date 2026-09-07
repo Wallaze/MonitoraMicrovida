@@ -1,0 +1,10 @@
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs e dependências (se utilizar no futuro)
+node_modules/
+*.log
+
+# Arquivos de ambiente e segredos
+.env
