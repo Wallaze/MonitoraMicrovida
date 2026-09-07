@@ -1,4 +1,4 @@
-// Configuração do Supabase
+// Configuração do Supabase (Mantida para suporte futuro)
 const SUPABASE_URL = 'COLE_AQUI_A_SUA_PROJECT_URL';
 const SUPABASE_ANON_KEY = 'COLE_AQUI_A_SUA_ANON_KEY';
 const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'COLE_AQUI_A_SUA_PROJECT_URL') 
@@ -60,7 +60,7 @@ window.obterTempAmbienteAuto = async function() {
   } else { elTemp.value = "25.0"; }
 };
 
-// --- GRAVAÇÃO DE VÍDEO (CORRIGIDA) ---
+// --- GRAVAÇÃO DE VÍDEO COMPLETA E FUNCIONAL ---
 window.iniciarGravacao10s = async function() {
   const btnGravar = document.getElementById('btnGravar');
   const cronometro = document.getElementById('cronometro');
@@ -71,10 +71,10 @@ window.iniciarGravacao10s = async function() {
     chunks = [];
     let stream = null;
 
-    // Tentativa com fallback para garantir acesso à câmera sem lançar erro de restrição rígida
+    // Acessa a câmera priorizando a traseira, sem restrições rígidas de resolução que falham o MediaDevices
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { max: 1280 }, height: { max: 720 } },
+        video: { facingMode: { ideal: "environment" } },
         audio: false
       });
     } catch (e1) {
@@ -84,15 +84,16 @@ window.iniciarGravacao10s = async function() {
     if (videoPreview) {
       videoPreview.srcObject = stream;
       videoPreview.muted = true;
-      videoPreview.play().catch(() => {});
+      videoPreview.setAttribute('playsinline', '');
+      await videoPreview.play();
     }
 
-    // Identificação flexível do mimeType suportado
+    // Identificação de codec suportado sem forçar parâmetros inválidos
     let options = {};
     if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
-      if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options.mimeType = 'video/webm;codecs=vp8';
+      if (MediaRecorder.isTypeSupported('video/mp4')) options.mimeType = 'video/mp4';
+      else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options.mimeType = 'video/webm;codecs=vp8';
       else if (MediaRecorder.isTypeSupported('video/webm')) options.mimeType = 'video/webm';
-      else if (MediaRecorder.isTypeSupported('video/mp4')) options.mimeType = 'video/mp4';
     }
 
     try {
@@ -109,6 +110,7 @@ window.iniciarGravacao10s = async function() {
       const mime = mediaRecorder.mimeType || 'video/webm';
       videoBlob = new Blob(chunks, { type: mime });
 
+      // Desliga o sensor da câmera ao encerrar a gravação
       stream.getTracks().forEach(track => track.stop());
 
       if (videoPreview) {
@@ -123,7 +125,7 @@ window.iniciarGravacao10s = async function() {
     };
 
     mediaRecorder.start(1000);
-    
+
     if (btnGravar) {
       btnGravar.disabled = true;
       btnGravar.classList.add('opacity-50', 'cursor-not-allowed');
@@ -132,7 +134,7 @@ window.iniciarGravacao10s = async function() {
 
     let tempo = 10;
     if (tempoEl) tempoEl.textContent = tempo;
-    
+
     const timer = setInterval(() => {
       tempo--;
       if (tempoEl) tempoEl.textContent = tempo;
@@ -217,11 +219,20 @@ window.voltarAoTopo = function() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// --- EXECUTAR QUANDO O DOM ESTIVER PRONTO ---
+// --- INICIALIZAÇÃO DE EVENTOS DO DOM ---
 document.addEventListener('DOMContentLoaded', () => {
   window.preencherDataHora();
   window.obterTempAmbienteAuto();
   window.carregarHistorico();
+
+  // Mapeamento explícito do botão de gravação para garantir a invocação
+  const btnGravar = document.getElementById('btnGravar');
+  if (btnGravar) {
+    btnGravar.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.iniciarGravacao10s();
+    });
+  }
 
   const elSalinidade = document.getElementById('salinidade');
   if (elSalinidade) {
@@ -237,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const tipo = document.getElementById('tipoRegistro')?.value || 'inicio';
 
-      // Converte o vídeo para Base64 se estiver rodando localmente (sem Supabase)
       let videoUrlFinal = null;
       if (videoBlob) {
         if (!_supabase) {
@@ -260,14 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
         observacoes: document.getElementById('observacoes')?.value,
         video_url: videoUrlFinal,
 
-        // Campos do Início de Cultura
         recipiente: tipo === 'inicio' ? document.getElementById('inicioRecipiente')?.value : null,
         litragem: tipo === 'inicio' ? document.getElementById('inicioLitragem')?.value : null,
         substrato: tipo === 'inicio' ? document.getElementById('inicioSubstrato')?.value : null,
         iluminacao: tipo === 'inicio' ? document.getElementById('inicioIluminacao')?.checked : null,
         aeracao: tipo === 'inicio' ? document.getElementById('inicioAeracao')?.checked : null,
 
-        // Campos Diários
         temp_agua: tipo === 'diaria' ? document.getElementById('diariaTempAgua')?.value : null,
         ph: tipo === 'diaria' ? document.getElementById('diariaPh')?.value : null,
         amonia: tipo === 'diaria' ? document.getElementById('diariaAmonia')?.value : null,
