@@ -1,13 +1,27 @@
 // Configuração do Supabase (Mantida para suporte futuro)
 const SUPABASE_URL = 'COLE_AQUI_A_SUA_PROJECT_URL';
 const SUPABASE_ANON_KEY = 'COLE_AQUI_A_SUA_ANON_KEY';
-const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'COLE_AQUI_A_SUA_PROJECT_URL') 
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'COLE_AQUI_A_SUA_PROJECT_URL')
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
 let mediaRecorder = null;
 let chunks = [];
 let videoBlob = null;
+
+// --- FUNÇÃO AUXILIAR: IDENTIFICAR A CULTURA ATUAL PELA URL ---
+window.obterCulturaAtual = function() {
+  const path = window.location.pathname.toLowerCase();
+  if (path.includes('amphipodes')) return 'amphipodes';
+  if (path.includes('tisbe')) return 'tisbe';
+  if (path.includes('rotiferos')) return 'rotiferos';
+  if (path.includes('nano')) return 'nano';
+  return 'gigapods'; // Padrão
+};
+
+// Key dinâmica para isolar o LocalStorage por tipo de cultura
+const CULTURA_ATUAL = window.obterCulturaAtual();
+const STORAGE_KEY = `registros_${CULTURA_ATUAL}_v2`;
 
 // --- ALTERAR ABA ---
 window.alternarAba = function(tipo) {
@@ -27,12 +41,33 @@ window.alternarAba = function(tipo) {
     if (secaoDiaria) secaoDiaria.classList.add('hidden');
     if (labelVideo) labelVideo.textContent = 'População em Vídeo (10s Obrigatórios)';
   } else {
-    if (tabDiaria) tabDiaria.className = 'flex-1 py-2 text-center rounded-md bg-amber-500 text-slate-950 transition-all font-bold';
+    if (tabDiaria) tabDiaria.className = 'flex-1 py-2 text-center rounded-md bg-emerald-500 text-slate-950 transition-all font-bold';
     if (tabInicio) tabInicio.className = 'flex-1 py-2 text-center rounded-md text-slate-400 hover:text-slate-200 transition-all';
     if (secaoDiaria) secaoDiaria.classList.remove('hidden');
     if (secaoInicio) secaoInicio.classList.add('hidden');
     if (labelVideo) labelVideo.textContent = 'Análise Populacional em Vídeo (10s Obrigatórios)';
+
+    // Atualiza a lista de culturas para o diário
+    window.atualizarDropdownCulturas();
   }
+};
+
+// --- PREENCHER A LISTA DE CULTURAS NO SELECT DE ANOTAÇÃO DIÁRIA ---
+window.atualizarDropdownCulturas = function() {
+  const select = document.getElementById('diariaCulturaRef');
+  if (!select) return;
+
+  let registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const lotesInicio = registros.filter(r => r.tipo === 'inicio' && r.nome_cultura);
+
+  select.innerHTML = '<option value="">Selecione o Lote / Cultura...</option>';
+
+  lotesInicio.forEach(lote => {
+    const opt = document.createElement('option');
+    opt.value = lote.nome_cultura;
+    opt.textContent = lote.nome_cultura;
+    select.appendChild(opt);
+  });
 };
 
 // --- PREENCHER DATA E HORA ---
@@ -71,7 +106,6 @@ window.iniciarGravacao10s = async function() {
     chunks = [];
     let stream = null;
 
-    // Acessa a câmera priorizando a traseira, sem restrições rígidas de resolução que falham o MediaDevices
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
@@ -88,7 +122,6 @@ window.iniciarGravacao10s = async function() {
       await videoPreview.play();
     }
 
-    // Identificação de codec suportado sem forçar parâmetros inválidos
     let options = {};
     if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
       if (MediaRecorder.isTypeSupported('video/mp4')) options.mimeType = 'video/mp4';
@@ -110,7 +143,6 @@ window.iniciarGravacao10s = async function() {
       const mime = mediaRecorder.mimeType || 'video/webm';
       videoBlob = new Blob(chunks, { type: mime });
 
-      // Desliga o sensor da câmera ao encerrar a gravação
       stream.getTracks().forEach(track => track.stop());
 
       if (videoPreview) {
@@ -174,18 +206,24 @@ window.validarFormulario = function() {
 // --- CARREGAR HISTÓRICO ---
 window.carregarHistorico = async function() {
   const container = document.getElementById('historicoContainer');
+  const filtroTipo = document.getElementById('filtroTipo')?.value || 'todos';
   if (!container) return;
 
   let registros = [];
   if (_supabase) {
-    const { data } = await _supabase.from('registros_cultivo').select('*').order('created_at', { ascending: false });
+    const { data } = await _supabase.from('registros_cultivo').select('*').eq('cultura', CULTURA_ATUAL).order('created_at', { ascending: false });
     registros = data || [];
   } else {
-    registros = JSON.parse(localStorage.getItem('registros_gigapods_v2') || '[]');
+    registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  }
+
+  // Aplica filtro por tipo
+  if (filtroTipo !== 'todos') {
+    registros = registros.filter(r => r.tipo === filtroTipo);
   }
 
   if (registros.length === 0) {
-    container.innerHTML = '<p class="text-slate-500 italic">Nenhum registro no histórico.</p>';
+    container.innerHTML = '<p class="text-slate-500 italic text-center py-4">Nenhum registro encontrado.</p>';
     return;
   }
 
@@ -200,9 +238,11 @@ window.carregarHistorico = async function() {
         <p><strong>Clima:</strong> ${item.temp_clima}°C | <strong>Salinidade:</strong> ${item.salinidade}</p>
 
         ${item.tipo === 'inicio' ? `
+          <p><strong>Lote:</strong> ${item.nome_cultura || 'N/A'}</p>
           <p><strong>Recipiente:</strong> ${item.recipiente || 'N/A'} (${item.litragem || '0'}L) | <strong>Substrato:</strong> ${item.substrato || 'N/A'}</p>
-          <p><strong>Checklist:</strong> Iluminação ${item.iluminacao ? '✅' : '❌'} | Aeração ${item.aeracao ? '✅' : '❌'}</p>
+          <p><strong>Aeração:</strong> ${item.aeracao ? '✅ Ativa' : '❌ Inativa'}</p>
         ` : `
+          <p><strong>Cultura Ref.:</strong> ${item.cultura_ref || 'Geral'}</p>
           <p><strong>Temp. Água:</strong> ${item.temp_agua || 'N/A'}°C | <strong>pH:</strong> ${item.ph || 'N/A'}</p>
           <p><strong>Química:</strong> NH3: ${item.amonia || '0'} | NO3: ${item.nitrato || '0'} | PO4: ${item.fosfato || '0'}</p>
         `}
@@ -223,9 +263,28 @@ window.voltarAoTopo = function() {
 document.addEventListener('DOMContentLoaded', () => {
   window.preencherDataHora();
   window.obterTempAmbienteAuto();
+  window.atualizarDropdownCulturas();
   window.carregarHistorico();
 
-  // Mapeamento explícito do botão de gravação para garantir a invocação
+  // Escuta troca de filtro de histórico
+  const filtroTipo = document.getElementById('filtroTipo');
+  if (filtroTipo) {
+    filtroTipo.addEventListener('change', window.carregarHistorico);
+  }
+
+  // Botão Imprimir / PDF
+  const btnImprimir = document.getElementById('btnImprimir');
+  if (btnImprimir) {
+    btnImprimir.addEventListener('click', () => window.print());
+  }
+
+  // Mapeamento das abas
+  const tabInicio = document.getElementById('tabInicio');
+  const tabDiaria = document.getElementById('tabDiaria');
+  if (tabInicio) tabInicio.addEventListener('click', () => window.alternarAba('inicio'));
+  if (tabDiaria) tabDiaria.addEventListener('click', () => window.alternarAba('diaria'));
+
+  // Botão de gravação
   const btnGravar = document.getElementById('btnGravar');
   if (btnGravar) {
     btnGravar.addEventListener('click', (e) => {
@@ -239,12 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
     elSalinidade.addEventListener('input', window.validarFormulario);
   }
 
+  // Form Submit
   const form = document.getElementById('cultivoForm');
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const status = document.getElementById('mensagemStatus');
-      if (status) status.textContent = 'Gravando registro...';
+      if (status) status.textContent = 'Salvando registro...';
 
       const tipo = document.getElementById('tipoRegistro')?.value || 'inicio';
 
@@ -263,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const registro = {
         id: Date.now(),
+        cultura: CULTURA_ATUAL,
         tipo: tipo,
         data_hora: document.getElementById('dataRegistro')?.value,
         temp_clima: document.getElementById('tempAmbiente')?.value,
@@ -270,12 +331,16 @@ document.addEventListener('DOMContentLoaded', () => {
         observacoes: document.getElementById('observacoes')?.value,
         video_url: videoUrlFinal,
 
+        // Campos de Início
+        nome_cultura: tipo === 'inicio' ? document.getElementById('inicioNomeCultura')?.value : null,
         recipiente: tipo === 'inicio' ? document.getElementById('inicioRecipiente')?.value : null,
         litragem: tipo === 'inicio' ? document.getElementById('inicioLitragem')?.value : null,
         substrato: tipo === 'inicio' ? document.getElementById('inicioSubstrato')?.value : null,
-        iluminacao: tipo === 'inicio' ? document.getElementById('inicioIluminacao')?.checked : null,
+        iluminacao_desc: tipo === 'inicio' ? document.getElementById('inicioIluminacaoDesc')?.value : null,
         aeracao: tipo === 'inicio' ? document.getElementById('inicioAeracao')?.checked : null,
 
+        // Campos Diários
+        cultura_ref: tipo === 'diaria' ? document.getElementById('diariaCulturaRef')?.value : null,
         temp_agua: tipo === 'diaria' ? document.getElementById('diariaTempAgua')?.value : null,
         ph: tipo === 'diaria' ? document.getElementById('diariaPh')?.value : null,
         amonia: tipo === 'diaria' ? document.getElementById('diariaAmonia')?.value : null,
@@ -284,9 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (!_supabase) {
-        let localData = JSON.parse(localStorage.getItem('registros_gigapods_v2') || '[]');
+        let localData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         localData.unshift(registro);
-        localStorage.setItem('registros_gigapods_v2', JSON.stringify(localData));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
       }
 
       if (status) status.textContent = '✅ Registro salvo com sucesso!';
@@ -295,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.obterTempAmbienteAuto();
       videoBlob = null;
       window.validarFormulario();
+      window.atualizarDropdownCulturas();
       window.carregarHistorico();
     });
   }
