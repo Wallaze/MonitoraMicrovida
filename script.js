@@ -436,6 +436,21 @@ document.addEventListener('DOMContentLoaded', () => {
       form.reset();
       videoBlob = null;
 
+      // Limpa e reseta a exibição do vídeo de preview
+      const videoPreview = document.getElementById('videoPreview');
+      if (videoPreview) {
+        videoPreview.pause();
+        videoPreview.removeAttribute('src'); // Remove a fonte da mídia
+        videoPreview.load(); // Força o elemento a voltar ao estado inicial
+      }
+
+      // Reseta o texto do botão de gravação
+      const btnGravar = document.getElementById('btnGravar');
+      if (btnGravar) {
+        btnGravar.textContent = '🎥 Gravar Vídeo (10s)';
+      }
+
+
       window.preencherDataHora();
       window.obterTempAmbienteAuto();
       window.atualizarDropdownCulturas();
