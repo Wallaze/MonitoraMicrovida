@@ -92,7 +92,7 @@ window.atualizarDropdownCulturas = function() {
   const select = document.getElementById('diariaCulturaRef');
   if (!select) return;
 
-  let registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let registros = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
   const lotesInicio = registros.filter(r => r.tipo === 'inicio' && r.nome_cultura);
 
   select.innerHTML = '<option value="">Selecione o Lote / Cultura...</option>';
@@ -262,7 +262,7 @@ window.carregarHistorico = async function() {
     const { data } = await _supabase.from('registros_cultivo').select('*').eq('cultura', CULTURA_ATUAL).order('created_at', { ascending: false });
     registros = data || [];
   } else {
-    registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    registros = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
   }
 
   if (filtroTipo !== 'todos') {
