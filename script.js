@@ -87,7 +87,7 @@ window.alternarAba = function(tipo) {
   window.validarFormulario();
 };
 
-// --- ATUALIZAR DROPDOWN DE CULTURAS ---
+// --- ATUALIZAR DROPDOWN DE CULTURAS (LEITURA EM SESSIONSTORAGE) ---
 window.atualizarDropdownCulturas = function() {
   const select = document.getElementById('diariaCulturaRef');
   if (!select) return;
@@ -232,16 +232,13 @@ window.validarFormulario = function() {
   let campoObrigatorioValido = false;
 
   if (tipoRegistro === 'inicio') {
-    // Obrigatório APENAS a identificação da cultura no início
     const nomeCultura = document.getElementById('inicioNomeCultura')?.value?.trim();
     campoObrigatorioValido = Boolean(nomeCultura && nomeCultura.length > 0);
   } else if (tipoRegistro === 'diaria') {
-    // Obrigatório APENAS a seleção de uma cultura existente no diário
     const culturaRef = document.getElementById('diariaCulturaRef')?.value;
     campoObrigatorioValido = Boolean(culturaRef && culturaRef !== "");
   }
 
-  // Libera ou bloqueia o botão de envio
   if (campoObrigatorioValido) {
     btnSalvar.disabled = false;
     btnSalvar.className = 'w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 rounded-md font-bold cursor-pointer transition-all shadow-lg';
@@ -251,7 +248,7 @@ window.validarFormulario = function() {
   }
 };
 
-// --- CARREGAR HISTÓRICO ---
+// --- CARREGAR HISTÓRICO (LEITURA EM SESSIONSTORAGE E BORDAS DINÂMICAS) ---
 window.carregarHistorico = async function() {
   const container = document.getElementById('historicoContainer');
   const filtroTipo = document.getElementById('filtroTipo')?.value || 'todos';
@@ -275,7 +272,7 @@ window.carregarHistorico = async function() {
   }
 
   container.innerHTML = registros.map(item => {
-    // Define a cor da borda com base no tipo de registro
+    // Define a cor da borda com base no tipo de registro (Laranja para início, Verde para diária)
     const corBorda = item.tipo === 'inicio' ? 'border-amber-500' : 'border-emerald-500';
 
     return `
@@ -359,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Monitora alterações nos campos chave para liberar/bloquear o botão
   const inputsMonitorados = ['inicioNomeCultura', 'diariaCulturaRef'];
   inputsMonitorados.forEach(id => {
     const el = document.getElementById(id);
@@ -369,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // SUBMIT COM TRAVA DE SEGURANÇA E DUPLO ENVIO
+  // SUBMIT COM SALVAMENTO EM SESSIONSTORAGE
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -381,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const btnSalvar = document.getElementById('btnSalvar');
       const status = document.getElementById('mensagemStatus');
 
-      // Trava contra duplo envio
       if (btnSalvar) {
         btnSalvar.disabled = true;
         btnSalvar.className = 'w-full bg-slate-600 text-slate-300 py-3 rounded-md font-bold cursor-not-allowed transition-all flex items-center justify-center gap-2';
@@ -439,9 +434,10 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (!_supabase) {
-        let localData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        // Gravação padronizada em sessionStorage para sessão temporária
+        let localData = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
         localData.unshift(registro);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
       }
 
       if (status) status.textContent = '✅ Registro salvo com sucesso!';
