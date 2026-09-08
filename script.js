@@ -113,7 +113,7 @@ window.alternarAba = function(tipo) {
   window.validarFormulario();
 };
 
-// --- ATUALIZAR DROPDOWN DE CULTURAS (LEITURA EM SESSIONSTORAGE) ---
+// --- ATUALIZAR DROPDOWN DE CULTURAS ---
 window.atualizarDropdownCulturas = function() {
   const select = document.getElementById('diariaCulturaRef');
   if (!select) return;
@@ -158,17 +158,32 @@ window.obterTempAmbienteAuto = async function() {
   } else { elTemp.value = "25.0"; }
 };
 
-// --- GRAVAÇÃO DE VÍDEO (OPCIONAL) ---
+// --- GRAVAÇÃO DE VÍDEO (REVISADA COM RESET DE MÍDIA) ---
 window.iniciarGravacao10s = async function() {
   const btnGravar = document.getElementById('btnGravar');
   const cronometro = document.getElementById('cronometro');
   const tempoEl = document.getElementById('tempoRestante');
   const videoPreview = document.getElementById('videoPreview');
 
+  // Interrompe e limpa execuções/stream anteriores
+  if (videoPreview) {
+    videoPreview.pause();
+    if (videoPreview.srcObject) {
+      const tracks = videoPreview.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoPreview.srcObject = null;
+    }
+    if (videoPreview.src) {
+      URL.revokeObjectURL(videoPreview.src);
+    }
+    videoPreview.removeAttribute('src');
+    videoPreview.load();
+  }
+
   videoBlob = null;
+  chunks = [];
 
   try {
-    chunks = [];
     let stream = null;
 
     try {
@@ -183,8 +198,9 @@ window.iniciarGravacao10s = async function() {
     if (videoPreview) {
       videoPreview.srcObject = stream;
       videoPreview.muted = true;
+      videoPreview.removeAttribute('controls');
       videoPreview.setAttribute('playsinline', '');
-      await videoPreview.play();
+      await videoPreview.play().catch(() => {});
     }
 
     let options = {};
@@ -274,7 +290,6 @@ window.carregarHistorico = async function() {
   }
 
   container.innerHTML = registros.map(item => {
-    // Borda Laranja para Início e Verde para Diária
     const corBorda = item.tipo === 'inicio' ? 'border-amber-500' : 'border-emerald-500';
 
     return `
@@ -358,7 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Monitoramento direto nos campos obrigatórios para destravar o botão
   const elInicio = document.getElementById('inicioNomeCultura');
   const elDiaria = document.getElementById('diariaCulturaRef');
 
@@ -371,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elDiaria.addEventListener('input', window.validarFormulario);
   }
 
-  // EVENTO DE SUBMIT (GRAVAÇÃO NA SESSIONSTORAGE)
+  // --- SUBMIT E LIMPEZA COMPLETA DO DISPLAY DE VÍDEO ---
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -408,7 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         observacoes: window.sanitizarEntrada(document.getElementById('observacoes')?.value),
         video_url: videoUrlFinal,
 
-        // Campos do Início
         nome_cultura: tipo === 'inicio' ? window.sanitizarEntrada(document.getElementById('inicioNomeCultura')?.value) : null,
         recipiente: tipo === 'inicio' ? window.sanitizarEntrada(document.getElementById('inicioRecipiente')?.value) : null,
         litragem: tipo === 'inicio' ? window.sanitizarEntrada(document.getElementById('inicioLitragem')?.value) : null,
@@ -416,7 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
         iluminacao_desc: tipo === 'inicio' ? window.sanitizarEntrada(document.getElementById('inicioIluminacaoDesc')?.value) : null,
         aeracao: tipo === 'inicio' ? document.getElementById('inicioAeracao')?.checked : null,
 
-        // Campos do Diário
         cultura_ref: tipo === 'diaria' ? window.sanitizarEntrada(document.getElementById('diariaCulturaRef')?.value) : null,
         temp_agua: tipo === 'diaria' ? window.sanitizarEntrada(document.getElementById('diariaTempAgua')?.value) : null,
         ph: tipo === 'diaria' ? window.sanitizarEntrada(document.getElementById('diariaPh')?.value) : null,
@@ -434,22 +446,31 @@ document.addEventListener('DOMContentLoaded', () => {
       if (status) status.textContent = '✅ Registro salvo com sucesso!';
 
       form.reset();
-      videoBlob = null;
 
-      // Limpa e reseta a exibição do vídeo de preview
+      // Reset do preview e descarte da mídia local
       const videoPreview = document.getElementById('videoPreview');
       if (videoPreview) {
         videoPreview.pause();
-        videoPreview.removeAttribute('src'); // Remove a fonte da mídia
-        videoPreview.load(); // Força o elemento a voltar ao estado inicial
+        if (videoPreview.srcObject) {
+          const tracks = videoPreview.srcObject.getTracks();
+          tracks.forEach(track => track.stop());
+          videoPreview.srcObject = null;
+        }
+        if (videoPreview.src) {
+          URL.revokeObjectURL(videoPreview.src);
+        }
+        videoPreview.removeAttribute('src');
+        videoPreview.removeAttribute('controls');
+        videoPreview.load();
       }
 
-      // Reseta o texto do botão de gravação
-      const btnGravar = document.getElementById('btnGravar');
-      if (btnGravar) {
-        btnGravar.textContent = '🎥 Gravar Vídeo (10s)';
-      }
+      videoBlob = null;
+      chunks = [];
 
+      const btnGravarBtn = document.getElementById('btnGravar');
+      if (btnGravarBtn) {
+        btnGravarBtn.textContent = '🎥 Gravar Vídeo (10s)';
+      }
 
       window.preencherDataHora();
       window.obterTempAmbienteAuto();
