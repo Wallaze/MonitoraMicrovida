@@ -274,32 +274,37 @@ window.carregarHistorico = async function() {
     return;
   }
 
-  container.innerHTML = registros.map(item => `
-    <div class="border border-slate-700 p-2.5 rounded bg-slate-900 space-y-1">
-      <div class="flex justify-between font-bold text-slate-200">
-        <span>${item.tipo === 'inicio' ? '🚀 Início de Cultura' : '📅 Registro Diário'}</span>
-        <span>📅 ${new Date(item.data_hora).toLocaleDateString('pt-BR')} ${new Date(item.data_hora).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+  container.innerHTML = registros.map(item => {
+    // Define a cor da borda com base no tipo de registro
+    const corBorda = item.tipo === 'inicio' ? 'border-amber-500' : 'border-emerald-500';
+
+    return `
+      <div class="border-2 ${corBorda} p-2.5 rounded bg-slate-900 space-y-1 transition-all">
+        <div class="flex justify-between font-bold text-slate-200">
+          <span>${item.tipo === 'inicio' ? '🚀 Início de Cultura' : '📅 Registro Diário'}</span>
+          <span>📅 ${new Date(item.data_hora).toLocaleDateString('pt-BR')} ${new Date(item.data_hora).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+
+        <div class="text-[11px] text-slate-300 border-t border-slate-800 pt-1 space-y-0.5">
+          <p><strong>Clima:</strong> ${window.sanitizarEntrada(String(item.temp_clima || 'N/A'))}°C | <strong>Salinidade:</strong> ${window.sanitizarEntrada(String(item.salinidade || 'N/A'))}</p>
+
+          ${item.tipo === 'inicio' ? `
+            <p><strong>Lote:</strong> ${window.sanitizarEntrada(item.nome_cultura || 'N/A')}</p>
+            <p><strong>Recipiente:</strong> ${window.sanitizarEntrada(item.recipiente || 'N/A')} (${window.sanitizarEntrada(String(item.litragem || '0'))}L) | <strong>Substrato:</strong> ${window.sanitizarEntrada(item.substrato || 'N/A')}</p>
+            <p><strong>Aeração:</strong> ${item.aeracao ? '✅ Ativa' : '❌ Inativa'}</p>
+          ` : `
+            <p><strong>Cultura Ref.:</strong> ${window.sanitizarEntrada(item.cultura_ref || 'Geral')}</p>
+            <p><strong>Temp. Água:</strong> ${window.sanitizarEntrada(String(item.temp_agua || 'N/A'))}°C | <strong>pH:</strong> ${window.sanitizarEntrada(String(item.ph || 'N/A'))}</p>
+            <p><strong>Química:</strong> NH3: ${window.sanitizarEntrada(String(item.amonia || '0'))} | NO3: ${window.sanitizarEntrada(String(item.nitrato || '0'))} | PO4: ${window.sanitizarEntrada(String(item.fosfato || '0'))}</p>
+          `}
+
+          ${item.observacoes ? `<p class="italic text-slate-400">Obs: "${window.sanitizarEntrada(item.observacoes)}"</p>` : ''}
+        </div>
+
+        ${item.video_url ? `<video src="${item.video_url}" controls class="w-full h-24 rounded mt-1 bg-black object-cover"></video>` : ''}
       </div>
-
-      <div class="text-[11px] text-slate-300 border-t border-slate-800 pt-1 space-y-0.5">
-        <p><strong>Clima:</strong> ${window.sanitizarEntrada(String(item.temp_clima || 'N/A'))}°C | <strong>Salinidade:</strong> ${window.sanitizarEntrada(String(item.salinidade || 'N/A'))}</p>
-
-        ${item.tipo === 'inicio' ? `
-          <p><strong>Lote:</strong> ${window.sanitizarEntrada(item.nome_cultura || 'N/A')}</p>
-          <p><strong>Recipiente:</strong> ${window.sanitizarEntrada(item.recipiente || 'N/A')} (${window.sanitizarEntrada(String(item.litragem || '0'))}L) | <strong>Substrato:</strong> ${window.sanitizarEntrada(item.substrato || 'N/A')}</p>
-          <p><strong>Aeração:</strong> ${item.aeracao ? '✅ Ativa' : '❌ Inativa'}</p>
-        ` : `
-          <p><strong>Cultura Ref.:</strong> ${window.sanitizarEntrada(item.cultura_ref || 'Geral')}</p>
-          <p><strong>Temp. Água:</strong> ${window.sanitizarEntrada(String(item.temp_agua || 'N/A'))}°C | <strong>pH:</strong> ${window.sanitizarEntrada(String(item.ph || 'N/A'))}</p>
-          <p><strong>Química:</strong> NH3: ${window.sanitizarEntrada(String(item.amonia || '0'))} | NO3: ${window.sanitizarEntrada(String(item.nitrato || '0'))} | PO4: ${window.sanitizarEntrada(String(item.fosfato || '0'))}</p>
-        `}
-
-        ${item.observacoes ? `<p class="italic text-slate-400">Obs: "${window.sanitizarEntrada(item.observacoes)}"</p>` : ''}
-      </div>
-
-      ${item.video_url ? `<video src="${item.video_url}" controls class="w-full h-24 rounded mt-1 bg-black object-cover"></video>` : ''}
-    </div>
-  `).join('');
+    `;
+  }).join('');
 };
 
 window.voltarAoTopo = function() {
