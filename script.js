@@ -57,6 +57,32 @@ window.verificarAcessoPIN = function() {
   }
 };
 
+// --- VALIDAÇÃO REVISADA (LIBERA O BOTÃO SALVAR) ---
+window.validarFormulario = function() {
+  const btnSalvar = document.getElementById('btnSalvar');
+  const tipoRegistro = document.getElementById('tipoRegistro')?.value || 'inicio';
+
+  if (!btnSalvar) return;
+
+  let campoObrigatorioValido = false;
+
+  if (tipoRegistro === 'inicio') {
+    const nomeCultura = document.getElementById('inicioNomeCultura')?.value?.trim();
+    campoObrigatorioValido = Boolean(nomeCultura && nomeCultura.length > 0);
+  } else if (tipoRegistro === 'diaria') {
+    const culturaRef = document.getElementById('diariaCulturaRef')?.value;
+    campoObrigatorioValido = Boolean(culturaRef && culturaRef !== "");
+  }
+
+  if (campoObrigatorioValido) {
+    btnSalvar.disabled = false;
+    btnSalvar.className = 'w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 rounded-md font-bold cursor-pointer transition-all shadow-lg';
+  } else {
+    btnSalvar.disabled = true;
+    btnSalvar.className = 'w-full bg-slate-700 text-slate-400 py-3 rounded-md font-bold cursor-not-allowed transition-all';
+  }
+};
+
 // --- ALTERAR ABA ---
 window.alternarAba = function(tipo) {
   const inputTipo = document.getElementById('tipoRegistro');
@@ -103,6 +129,8 @@ window.atualizarDropdownCulturas = function() {
     opt.textContent = lote.nome_cultura;
     select.appendChild(opt);
   });
+
+  window.validarFormulario();
 };
 
 // --- PREENCHER DATA E HORA ---
@@ -222,33 +250,7 @@ window.iniciarGravacao10s = async function() {
   }
 };
 
-// --- VALIDAÇÃO REVISADA (APENAS UM CAMPO OBRIGATÓRIO POR ABA) ---
-window.validarFormulario = function() {
-  const btnSalvar = document.getElementById('btnSalvar');
-  const tipoRegistro = document.getElementById('tipoRegistro')?.value || 'inicio';
-
-  if (!btnSalvar) return;
-
-  let campoObrigatorioValido = false;
-
-  if (tipoRegistro === 'inicio') {
-    const nomeCultura = document.getElementById('inicioNomeCultura')?.value?.trim();
-    campoObrigatorioValido = Boolean(nomeCultura && nomeCultura.length > 0);
-  } else if (tipoRegistro === 'diaria') {
-    const culturaRef = document.getElementById('diariaCulturaRef')?.value;
-    campoObrigatorioValido = Boolean(culturaRef && culturaRef !== "");
-  }
-
-  if (campoObrigatorioValido) {
-    btnSalvar.disabled = false;
-    btnSalvar.className = 'w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 rounded-md font-bold cursor-pointer transition-all shadow-lg';
-  } else {
-    btnSalvar.disabled = true;
-    btnSalvar.className = 'w-full bg-slate-700 text-slate-400 py-3 rounded-md font-bold cursor-not-allowed transition-all';
-  }
-};
-
-// --- CARREGAR HISTÓRICO (LEITURA EM SESSIONSTORAGE E BORDAS DINÂMICAS) ---
+// --- CARREGAR HISTÓRICO COM BORDAS COLORIDAS ---
 window.carregarHistorico = async function() {
   const container = document.getElementById('historicoContainer');
   const filtroTipo = document.getElementById('filtroTipo')?.value || 'todos';
@@ -267,12 +269,12 @@ window.carregarHistorico = async function() {
   }
 
   if (registros.length === 0) {
-    container.innerHTML = '<p class="text-slate-500 italic text-center py-4">Nenhum registro encontrado.</p>';
+    container.innerHTML = '<p class="text-slate-500 italic text-center py-4">Nenhum registro nesta sessão.</p>';
     return;
   }
 
   container.innerHTML = registros.map(item => {
-    // Define a cor da borda com base no tipo de registro (Laranja para início, Verde para diária)
+    // Borda Laranja para Início e Verde para Diária
     const corBorda = item.tipo === 'inicio' ? 'border-amber-500' : 'border-emerald-500';
 
     return `
@@ -308,7 +310,7 @@ window.voltarAoTopo = function() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// --- INICIALIZAÇÃO DE EVENTOS ---
+// --- INICIALIZAÇÃO E EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
   window.preencherDataHora();
   window.obterTempAmbienteAuto();
@@ -356,16 +358,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const inputsMonitorados = ['inicioNomeCultura', 'diariaCulturaRef'];
-  inputsMonitorados.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', window.validarFormulario);
-      el.addEventListener('change', window.validarFormulario);
-    }
-  });
+  // Monitoramento direto nos campos obrigatórios para destravar o botão
+  const elInicio = document.getElementById('inicioNomeCultura');
+  const elDiaria = document.getElementById('diariaCulturaRef');
 
-  // SUBMIT COM SALVAMENTO EM SESSIONSTORAGE
+  if (elInicio) {
+    elInicio.addEventListener('input', window.validarFormulario);
+    elInicio.addEventListener('change', window.validarFormulario);
+  }
+  if (elDiaria) {
+    elDiaria.addEventListener('change', window.validarFormulario);
+    elDiaria.addEventListener('input', window.validarFormulario);
+  }
+
+  // EVENTO DE SUBMIT (GRAVAÇÃO NA SESSIONSTORAGE)
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -380,13 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btnSalvar) {
         btnSalvar.disabled = true;
         btnSalvar.className = 'w-full bg-slate-600 text-slate-300 py-3 rounded-md font-bold cursor-not-allowed transition-all flex items-center justify-center gap-2';
-        btnSalvar.innerHTML = `
-          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Salvando Registro...
-        `;
+        btnSalvar.innerHTML = 'Salvando Registro...';
       }
 
       if (status) status.textContent = 'Processando e salvando...';
@@ -395,15 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let videoUrlFinal = null;
       if (videoBlob) {
-        if (!_supabase) {
-          videoUrlFinal = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(videoBlob);
-          });
-        } else {
-          videoUrlFinal = URL.createObjectURL(videoBlob);
-        }
+        videoUrlFinal = URL.createObjectURL(videoBlob);
       }
 
       const registro = {
@@ -434,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       if (!_supabase) {
-        // Gravação padronizada em sessionStorage para sessão temporária
         let localData = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
         localData.unshift(registro);
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
@@ -445,15 +436,11 @@ document.addEventListener('DOMContentLoaded', () => {
       form.reset();
       videoBlob = null;
 
-      if (btnSalvar) {
-        btnSalvar.innerHTML = 'Salvar Registro';
-      }
-
       window.preencherDataHora();
       window.obterTempAmbienteAuto();
-      window.validarFormulario();
       window.atualizarDropdownCulturas();
       window.carregarHistorico();
+      window.validarFormulario();
     });
   }
 });
