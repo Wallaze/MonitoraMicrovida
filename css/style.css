@@ -3,6 +3,12 @@
    Arquivo de Estilos Globais Compartilhados (style.css)
    ========================================================================== */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* 1. RESET E ROLAGEM GLOBAL */
 html {
   scroll-behavior: smooth;
@@ -68,14 +74,32 @@ video, img {
   overflow: hidden;
 }
 
+.video-preview-container video {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+
 /* 5. ACESSIBILIDADE E FOCUS PADRONIZADO */
-input:focus, select:focus, textarea:focus, button:focus {
+/*input:focus, select:focus, textarea:focus, button:focus {
   outline: none;
 }
 
 input:focus-visible, select:focus-visible, textarea:focus-visible {
   ring: 2px;
   ring-color: #f59e0b; /* amber-500 */
+}*/
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+textarea {
+  resize: vertical;
 }
 
 /* 6. ESTILOS DE BOTOES E FILTROS DE CULTURA */
@@ -84,6 +108,20 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   color: #020617 !important; /* slate-950 */
   font-weight: 700 !important;
   border-color: #22d3ee !important; /* cyan-400 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* 7. REGRAS EXCLUSIVAS PARA IMPRESSÃO E EXPORTAÇÃO (PDF) */
