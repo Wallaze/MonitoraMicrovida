@@ -9,6 +9,8 @@ import {
   obterRegistrosLocais
 } from './cultura.js';
 
+import { _supabase } from './config.js';
+
 
 // --------------------------------------------------------------------------
 // Sanitização para renderização HTML
@@ -126,20 +128,54 @@ export function alternarAba(tipo) {
 
 
 // --------------------------------------------------------------------------
-// Dropdown de culturas
+// Dropdown de culturas (Lê do Supabase)
 // --------------------------------------------------------------------------
 
-export function atualizarDropdownCulturas() {
+export async function atualizarDropdownCulturas() {
 
   const select =
     document.getElementById('diariaCulturaRef');
 
   if (!select) return;
 
+  select.innerHTML =
+    '<option value="">Carregando lotes...</option>';
 
+  // Se Supabase está configurado, carregar do banco
+  if (_supabase) {
+    try {
+      const { data: lotes, error } = await _supabase
+        .from('lotes_cultura')
+        .select('id, identificacao')
+        .eq('cultura', CULTURA_ATUAL)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      select.innerHTML =
+        '<option value="">Selecione o Lote / Cultura...</option>';
+
+      if (lotes && lotes.length > 0) {
+        lotes.forEach(lote => {
+          const option =
+            document.createElement('option');
+
+          option.value = lote.id;
+          option.textContent = lote.identificacao;
+
+          select.appendChild(option);
+        });
+      }
+
+      return;
+    } catch (erro) {
+      console.error('Erro ao carregar lotes do Supabase:', erro);
+    }
+  }
+
+  // Fallback: Leitura local do sessionStorage
   const registros =
     obterRegistrosLocais();
-
 
   const lotesInicio =
     registros.filter(
@@ -148,10 +184,8 @@ export function atualizarDropdownCulturas() {
         registro.nome_cultura
     );
 
-
   select.innerHTML =
     '<option value="">Selecione o Lote / Cultura...</option>';
-
 
   lotesInicio.forEach(lote => {
 
