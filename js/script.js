@@ -54,10 +54,40 @@ window.voltarAoTopo = voltarAoTopo;
 
 
 // --------------------------------------------------------------------------
+// Função para carregar lotes no dropdown (Definida ANTES de ser usada)
+// --------------------------------------------------------------------------
+
+async function carregarLotesNoDropdown() {
+  const select = document.getElementById('diariaCulturaRef');
+  if (!select) return;
+
+  const { _supabase } = await import('./config.js');
+  const { CULTURA_ATUAL } = await import('./cultura.js');
+
+  if (_supabase) {
+    try {
+      const { data: lotes } = await _supabase
+        .from('lotes_cultura')
+        .select('id, identificacao')
+        .eq('cultura', CULTURA_ATUAL)
+        .order('created_at', { ascending: false });
+
+      if (lotes && lotes.length > 0) {
+        select.innerHTML = '<option value="">Selecione o Lote...</option>' +
+          lotes.map(l => `<option value="${l.id}">${l.identificacao}</option>`).join('');
+      }
+    } catch (erro) {
+      console.error('Erro ao carregar lotes:', erro);
+    }
+  }
+}
+
+
+// --------------------------------------------------------------------------
 // Inicialização
 // --------------------------------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
   preencherDataHora();
 
@@ -67,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   carregarHistorico();
 
-  carregarLotesNoDropdown();
+  // Aguarda o carregamento dos lotes
+  await carregarLotesNoDropdown();
 
 
   // ------------------------------------------------------------------------
@@ -401,24 +432,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   validarFormulario();
 });
-
-async function carregarLotesNoDropdown() {
-  const select = document.getElementById('diariaCulturaRef');
-  if (!select) return;
-
-  const { _supabase } = await import('./config.js');
-  const { CULTURA_ATUAL } = await import('./cultura.js');
-
-  if (_supabase) {
-    const { data: lotes } = await _supabase
-      .from('lotes_cultura')
-      .select('id, identificacao')
-      .eq('cultura', CULTURA_ATUAL)
-      .order('created_at', { ascending: false });
-
-    if (lotes && lotes.length > 0) {
-      select.innerHTML = '<option value="">Selecione o Lote...</option>' +
-        lotes.map(l => `<option value="${l.id}">${l.identificacao}</option>`).join('');
-    }
-  }
-}
