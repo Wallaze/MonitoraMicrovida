@@ -1,27 +1,34 @@
-Esse é o mais abrangente.
+---
 
-É praticamente o documento que alguém poderia usar para compreender o projeto tecnicamente sem precisar abrir todos os arquivos.
+### 5. `docs/relatorio-tecnico.md`
 
-Pode reunir:
+```markdown
+# 📊 Relatório Técnico do Projeto — MonitoraMicrovida
 
-contexto;
-problema;
-objetivo;
-escopo;
-requisitos;
-funcionamento;
-arquitetura;
-tecnologias;
-estrutura;
-modelo de dados;
-armazenamento de mídia;
-segurança;
-limitações;
-decisões técnicas;
-estado atual;
-próximos passos;
-referências técnicas.
+Este documento sintetiza a arquitetura, as decisões de engenharia, a infraestrutura e a viabilidade operacional do **MonitoraMicrovida**.
 
-Portanto, ele pode ser bem mais extenso.
+---
 
-Não é simplesmente uma cópia dos outros cinco documentos. Ele sintetiza e contextualiza o projeto inteiro.
+## 1. Contexto e Problema
+O cultivo e a manutenção de organismos aquáticos e plâncton (como *Tigriopus californicus*, *Tisbe biminiensis* e *Nannochloropsis*) exigem o monitoramento rigoroso de parâmetros físico-químicos e a documentação visual da densidade da cultura. O acompanhamento manual em planilhas ou cadernos físicos gera dispersão de histórico, perda de rastreabilidade e falta de padronização.
+
+---
+
+## 2. Solução Proposta
+O **MonitoraMicrovida** resolve esse problema centralizando o registro em uma aplicação web responsiva. A solução combina a coleta estruturada de parâmetros da água (pH, amônia, nitrato, fosfato, salinidade, temperatura) com uma documentação visual em vídeo (10 segundos) persistida em nuvem.
+
+---
+
+## 3. Síntese da Infraestrutura e Tecnologias
+
+```text
+┌───────────────────┬─────────────────────────────────────────────────┐
+│ Camada            │ Tecnologias Adotadas                            │
+├───────────────────┼─────────────────────────────────────────────────┤
+│ Frontend          │ HTML5, CSS3, Tailwind CSS, Vanilla JS (ES6)     │
+│ Hardware / APIs   │ MediaRecorder API, Geolocation API, Open-Meteo │
+│ Persistência Nuvem│ Supabase Client (@supabase/supabase-js)         │
+│ Banco Relacional  │ PostgreSQL (Supabase)                           │
+│ Storage de Mídia  │ Supabase Storage (Bucket: videos-cultivo)       │
+│ Job Scheduler     │ PostgreSQL pg_cron                              │
+└───────────────────┴─────────────────────────────────────────────────┘

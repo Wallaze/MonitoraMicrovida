@@ -1,39 +1,13 @@
-Esse é o documento de planejamento.
+# 🗺️ Roadmap e Ciclo de Vida do Produto — MonitoraMicrovida
 
-Por exemplo:
+Este documento estabelece os marcos de desenvolvimento do sistema, divididos entre o protótipo inicial, o sistema interno consolidado e as expansões futuras.
 
-Fase 1 — Protótipo funcional
-páginas de culturas;
-formulário;
-registros;
-vídeo;
-histórico;
-impressão;
-armazenamento provisório.
-Fase 2 — Sistema interno
-Supabase;
-PostgreSQL;
-Storage;
-autenticação;
-RLS;
-modelo relacional;
-registros persistentes.
-Fase 3 — Consolidação
-dashboards;
-indicadores;
-filtros;
-relatórios;
-exportações;
-controle de operadores;
-gestão de mídias.
-Fase 4 — Produto externo
-multiusuário;
-multi-instituição;
-isolamento de dados;
-billing, se aplicável;
-infraestrutura;
-observabilidade;
-LGPD;
-suporte etc.
+---
 
-O roadmap é diferente da arquitetura porque arquitetura descreve como construímos; roadmap descreve quando e por que evoluímos.
+## 🚀 Painel de Status das Fases
+
+```text
+ [FASE 1] Protótipo Funcional  ──────► CONCLUÍDO (100%)
+ [FASE 2] Sistema Interno (Nuvem) ──► CONCLUÍDO (100%)
+ [FASE 3] Consolidação & Métricas ──► EM ANDAMENTO (40%)
+ [FASE 4] Produto SaaS Externo   ──► PLANEJADO (0%)

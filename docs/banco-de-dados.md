@@ -1,45 +1,31 @@
-Esse documento é especificamente sobre o modelo de dados.
+---
 
-Por exemplo, quando chegarmos ao modelo relacional planejado:
+### 2. `docs/banco-de-dados.md`
 
-operadores
-     │
-     │
-     ▼
-lotes_cultura
-     │
-     │
-     ▼
-registros_diarios
-     │
-     └──────► mídias / Storage
+```markdown
+# 🗄️ Especificação de Banco de Dados — MonitoraMicrovida
 
-Ele poderá documentar:
+Este documento detalha o modelo relacional, o dicionário de dados, as políticas de armazenamento e as rotinas de manutenção executadas no **PostgreSQL (Supabase)**.
 
-tabelas;
-colunas;
-tipos;
-chaves primárias;
-chaves estrangeiras;
-relacionamentos;
-índices;
-constraints;
-campos obrigatórios/opcionais;
-histórico;
-política de retenção;
-relação entre banco PostgreSQL e Supabase Storage;
-migrations;
-seed;
-evolução do esquema.
+---
 
-Esse documento será particularmente importante porque o banco atual do protótipo e o banco relacional que planejamos não são exatamente a mesma coisa.
+## 📐 Diagrama Entidade-Relacionamento (DER)
 
-Então não devemos fingir que aquilo que está planejado já está implementado.
-
-Vamos documentar claramente:
-
-Estado atual: ...
-
-Modelo planejado: ...
-
-Isso evita uma documentação tecnicamente bonita, mas falsa.
+```text
+┌─────────────────────────┐         ┌──────────────────────────────┐
+│      LOTES_CULTURA      │         │      REGISTROS_DIARIOS       │
+├─────────────────────────┤         ├──────────────────────────────┤
+│ PK  id (UUID)           │ 1     N │ PK  id (UUID)                │
+│     cultura (VARCHAR)   │◄────────┼─FK  lote_id (UUID)           │
+│     identificacao (TEXT)│         │     data_registro (TIMESTAMPTZ)│
+│     recipiente (VARCHAR)│         │     temp_agua (NUMERIC)      │
+│     litragem (NUMERIC)  │         │     ph (NUMERIC)             │
+│     substrato (VARCHAR) │         │     amonia (NUMERIC)         │
+│     iluminacao (VARCHAR)│         │     nitrato (NUMERIC)        │
+│     aeracao (BOOLEAN)   │         │     fosfato (NUMERIC)        │
+│     temp_amb (NUMERIC)  │         │     salinidade (NUMERIC)     │
+│     salinidade (NUMERIC)│         │     temp_amb (NUMERIC)       │
+│     video_url (TEXT)    │         │     video_url (TEXT)         │
+│     observacoes (TEXT)  │         │     observacoes (TEXT)       │
+│     created_at (TIMESTAMP)        │     created_at (TIMESTAMPTZ) │
+└─────────────────────────┘         └──────────────────────────────┘

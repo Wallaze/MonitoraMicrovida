@@ -1,28 +1,32 @@
-Aqui entramos na engenharia do software.
+# 🏛️ Arquitetura do Sistema — MonitoraMicrovida
 
-Ele explicará, por exemplo:
+Este documento especifica a engenharia de software, a organização de componentes, o fluxo de dados e as decisões arquiteturais do **MonitoraMicrovida**.
 
-Interface
-   ↓
-JavaScript modular
-   ↓
-Serviços / regras da aplicação
-   ↓
-Supabase
-   ├── PostgreSQL
-   ├── Storage
-   └── Auth
+---
 
-E também:
+## 📄 Visão Geral & Modelo C4 (Contêineres)
 
-estrutura de diretórios;
-responsabilidade de cada módulo JS;
-relação entre HTML, CSS e JavaScript;
-fluxo de um registro;
-fluxo de gravação do vídeo;
-armazenamento local provisório;
-futura comunicação com Supabase;
-separação entre frontend, banco e armazenamento de arquivos;
-decisões arquiteturais.
+O sistema adota uma arquitetura em camadas baseada no padrão **SPA (Single Page Application) leve**, sem o uso de frameworks pesados, consumindo serviços BaaS (Backend-as-a-Service) disponibilizados pelo Supabase.
 
-É o documento para alguém que queira entender a engenharia do sistema.
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT / BROWSER                         │
+│                                                                 │
+│   HTML5 / Tailwind CSS (Interface Global)                       │
+│     │                                                           │
+│     ▼                                                           │
+│   JavaScript ES Modules (js/*.js)                               │
+│     ├── UI / DOM Handlers (ui.js, cultura.js)                   │
+│     ├── Hardware / APIs (video.js, clima.js)                    │
+│     └── Data Layer & State (registros.js)                       │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                │ (HTTPS / REST / PostgREST)
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       SUPABASE INFRASTRUCTURE                   │
+│                                                                 │
+│   ├── Supabase Client (@supabase/supabase-js)                   │
+│   ├── PostgreSQL Database (lotes_cultura, registros_diarios)    │
+│   └── Supabase Storage (Bucket: videos-cultivo)                 │
+└─────────────────────────────────────────────────────────────────┘

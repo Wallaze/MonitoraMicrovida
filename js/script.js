@@ -25,7 +25,8 @@ import {
 import {
   validarFormulario,
   carregarHistorico,
-  construirRegistro,
+  uploadVideoSupabase,
+  salvarRegistroSupabase,
   salvarRegistroLocal
 } from './registros.js';
 
@@ -65,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
   atualizarDropdownCulturas();
 
   carregarHistorico();
+
+  carregarLotesNoDropdown();
 
 
   // ------------------------------------------------------------------------
@@ -327,72 +330,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // ------------------------------------------------------------------
-        // Vídeo
+        // Processamento de Vídeo (Supabase Storage)
         // ------------------------------------------------------------------
 
         let videoUrlFinal = null;
-
-        const videoBlob =
-          obterVideoBlob();
-
+        const videoBlob = obterVideoBlob();
 
         if (videoBlob) {
-
-          /*
-           * IMPORTANTE:
-           *
-           * Esta é uma solução temporária para a demo.
-           *
-           * Quando o Supabase Storage entrar,
-           * o Blob será enviado para o Storage.
-           *
-           * NÃO devemos armazenar URL.createObjectURL()
-           * como URL permanente no banco.
-           */
-
-          const reader =
-            new FileReader();
-
-
-          videoUrlFinal =
-            await new Promise(resolve => {
-
-              reader.onloadend = () => {
-                resolve(reader.result);
-              };
-
-              reader.readAsDataURL(
-                videoBlob
-              );
-            });
+          videoUrlFinal = await uploadVideoSupabase(videoBlob);
         }
 
-
         // ------------------------------------------------------------------
-        // Registro
+        // Envios ao Banco de Dados (Supabase / Fallback Local)
         // ------------------------------------------------------------------
 
-        const tipo =
-          document
-            .getElementById('tipoRegistro')
-            ?.value ||
-          'inicio';
+        const tipo = document.getElementById('tipoRegistro')?.value || 'inicio';
 
+        // Tenta salvar no Supabase
+        const sucessoSupabase = await salvarRegistroSupabase(tipo, videoUrlFinal);
 
-        const registro =
-          construirRegistro(
+        // Se o banco falhar/estiver offline, armazena no sessionStorage
+        if (!sucessoSupabase) {
+          salvarRegistroLocal({
             tipo,
-            videoUrlFinal
-          );
-
-
-        // ------------------------------------------------------------------
-        // Persistência local
-        // ------------------------------------------------------------------
-
-        salvarRegistroLocal(
-          registro
-        );
+            videoUrl: videoUrlFinal,
+            dataHora: new Date().toISOString()
+          });
+        }
 
 
         // ------------------------------------------------------------------
@@ -437,3 +401,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   validarFormulario();
 });
+
+async function carregarLotesNoDropdown() {
+  const select = document.getElementById('diariaCulturaRef');
+  if (!select) return;
+
+  const { _supabase } = await import('./config.js');
+  const { CULTURA_ATUAL } = await import('./cultura.js');
+
+  if (_supabase) {
+    const { data: lotes } = await _supabase
+      .from('lotes_cultura')
+      .select('id, identificacao')
+      .eq('cultura', CULTURA_ATUAL)
+      .order('created_at', { ascending: false });
+
+    if (lotes && lotes.length > 0) {
+      select.innerHTML = '<option value="">Selecione o Lote...</option>' +
+        lotes.map(l => `<option value="${l.id}">${l.identificacao}</option>`).join('');
+    }
+  }
+}
