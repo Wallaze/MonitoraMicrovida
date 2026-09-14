@@ -1,9 +1,11 @@
+// ==========================================================================
 // MONITORAMICROVIDA - Configurações Globais
+// ==========================================================================
 
 export const SUPABASE_URL = 'https://ajrnwphdtlrhuyuehzen.supabase.co';
 export const SUPABASE_ANON_KEY = 'sb_publishable_YNVkbiEuFQ1mUo_AeK-z2Q_HZG0ri-4';
 
-// Instanciação segura do cliente Supabase para não travar a aplicação em caso de erro na biblioteca/chave
+// Variável declarada fora do bloco try para ter escopo correto
 let supabaseClient = null;
 
 try {
@@ -11,7 +13,7 @@ try {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch (error) {
-  console.warn('Alerta Supabase: Não foi possível inicializar o cliente com a chave fornecida. O sistema funcionará com fallback local.', error);
+  console.warn('Alerta Supabase: Falha ao inicializar cliente.', error);
 }
 
 export const _supabase = supabaseClient;
