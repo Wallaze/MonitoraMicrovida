@@ -5,15 +5,15 @@
 export const SUPABASE_URL = 'https://ajrnwphdtlrhuyuehzen.supabase.co';
 export const SUPABASE_ANON_KEY = 'sb_publishable_YNVkbiEuFQ1mUo_AeK-z2Q_HZG0ri-4';
 
-// Variável declarada fora do bloco try para ter escopo correto
+// Declarada fora do try/catch para garantir o escopo correto do export
 let supabaseClient = null;
 
 try {
-  if (typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY) {
+  if (typeof window !== 'undefined' && window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch (error) {
-  console.warn('Alerta Supabase: Falha ao inicializar cliente.', error);
+  console.warn('Alerta Supabase: Falha ao inicializar o cliente.', error);
 }
 
 export const _supabase = supabaseClient;
