@@ -139,13 +139,6 @@ export async function carregarHistorico() {
           .eq('cultura', CULTURA_ATUAL)
           .order('created_at', { ascending: false });
 
-if (filtroTipo === 'todos' || filtroTipo === 'inicio') {
-        const { data: lotes } = await _supabase
-          .from('lotes_cultura')
-          .select('*')
-          .eq('cultura', CULTURA_ATUAL)
-          .order('created_at', { ascending: false });
-
         if (lotes) {
           lotes.forEach(l => {
             html += `
