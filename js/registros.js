@@ -74,7 +74,6 @@ export async function uploadVideoSupabase(videoBlob) {
 
 // --------------------------------------------------------------------------
 // Salvar Registro via função RPC (PIN validado dentro do banco)
-// Retorna { ok, pinInvalido } — não mais um boolean simples.
 // --------------------------------------------------------------------------
 export async function salvarRegistroSupabase(tipo, videoUrl) {
   if (!_supabase) return { ok: false, pinInvalido: false };
@@ -149,6 +148,8 @@ export async function carregarHistorico() {
           .select('*')
           .eq('cultura', CULTURA_ATUAL);
 
+        (lotes || []).forEach(l => itens.push({ tipo: 'inicio', data: l }));
+      }
 
       if (filtroTipo === 'todos' || filtroTipo === 'diaria') {
         const { data: diarios } = await _supabase
