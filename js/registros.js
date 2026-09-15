@@ -83,27 +83,32 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
 
   try {
     if (tipo === 'inicio') {
-      const { error } = await _supabase.rpc('criar_lote', {
+      const payload = {
         p_pin: pin,
         p_cultura: CULTURA_ATUAL,
-        p_identificacao: document.getElementById('inicioNomeCultura')?.value,
+        p_identificacao: document.getElementById('inicioNomeCultura')?.value || null,
         p_recipiente: document.getElementById('inicioRecipiente')?.value || null,
         p_litragem: parseNum(document.getElementById('inicioLitragem')?.value),
         p_substrato: document.getElementById('inicioSubstrato')?.value || null,
         p_iluminacao: document.getElementById('inicioIluminacaoDesc')?.value || null,
-        p_aeracao: document.getElementById('inicioAeracao')?.checked || false,
+        p_aeracao: Boolean(document.getElementById('inicioAeracao')?.checked),
         p_temperatura_ambiente: parseNum(document.getElementById('tempAmbiente')?.value),
         p_salinidade: parseNum(document.getElementById('salinidade')?.value),
         p_observacoes: document.getElementById('observacoes')?.value || null,
         p_video_path: videoUrl
-      });
+      };
 
-      if (error) throw error;
+      const { error } = await _supabase.rpc('criar_lote', payload);
+
+      if (error) {
+        console.error('Erro detalhado no RPC criar_lote:', error.message, error.details);
+        throw error;
+      }
 
     } else if (tipo === 'diaria') {
       const loteId = document.getElementById('diariaCulturaRef')?.value;
 
-      const { error } = await _supabase.rpc('criar_registro_diario', {
+      const payload = {
         p_pin: pin,
         p_lote_id: loteId,
         p_temperatura_agua: parseNum(document.getElementById('diariaTempAgua')?.value),
@@ -115,9 +120,14 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
         p_salinidade: parseNum(document.getElementById('salinidade')?.value),
         p_observacoes: document.getElementById('observacoes')?.value || null,
         p_video_path: videoUrl
-      });
+      };
 
-      if (error) throw error;
+      const { error } = await _supabase.rpc('criar_registro_diario', payload);
+
+      if (error) {
+        console.error('Erro detalhado no RPC criar_registro_diario:', error.message, error.details);
+        throw error;
+      }
     }
 
     return { ok: true, pinInvalido: false };
