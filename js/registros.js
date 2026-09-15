@@ -83,10 +83,17 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
 
   try {
     if (tipo === 'inicio') {
+      const nomeCultura = document.getElementById('inicioNomeCultura')?.value?.trim();
+
+      if (!nomeCultura) {
+        console.error('Erro: Nome/Identificação da cultura é obrigatório.');
+        return { ok: false, pinInvalido: false };
+      }
+
       const payload = {
         p_pin: pin,
         p_cultura: CULTURA_ATUAL,
-        p_identificacao: document.getElementById('inicioNomeCultura')?.value || null,
+        p_identificacao: nomeCultura,
         p_recipiente: document.getElementById('inicioRecipiente')?.value || null,
         p_litragem: parseNum(document.getElementById('inicioLitragem')?.value),
         p_substrato: document.getElementById('inicioSubstrato')?.value || null,
@@ -95,7 +102,7 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
         p_temperatura_ambiente: parseNum(document.getElementById('tempAmbiente')?.value),
         p_salinidade: parseNum(document.getElementById('salinidade')?.value),
         p_observacoes: document.getElementById('observacoes')?.value || null,
-        p_video_path: videoUrl
+        p_video_path: videoUrl || null
       };
 
       const { error } = await _supabase.rpc('criar_lote', payload);
@@ -108,6 +115,11 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
     } else if (tipo === 'diaria') {
       const loteId = document.getElementById('diariaCulturaRef')?.value;
 
+      if (!loteId) {
+        console.error('Erro: Lote de cultura de referência é obrigatório.');
+        return { ok: false, pinInvalido: false };
+      }
+
       const payload = {
         p_pin: pin,
         p_lote_id: loteId,
@@ -119,7 +131,7 @@ export async function salvarRegistroSupabase(tipo, videoUrl) {
         p_temperatura_ambiente: parseNum(document.getElementById('tempAmbiente')?.value),
         p_salinidade: parseNum(document.getElementById('salinidade')?.value),
         p_observacoes: document.getElementById('observacoes')?.value || null,
-        p_video_path: videoUrl
+        p_video_path: videoUrl || null
       };
 
       const { error } = await _supabase.rpc('criar_registro_diario', payload);
