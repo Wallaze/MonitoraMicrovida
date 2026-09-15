@@ -203,7 +203,7 @@ Registros de acompanhamento
 | Tabela | Descrição |
 |---|---|
 | `operadores` | Pessoas autorizadas a registrar dados (nome, PIN, status ativo) |
-| `lotes_cultura` | Abertura de uma cultura (cultura, identificação, recipiente, litragem, substrato, iluminação, aeração, ambiente, observações) |
+| `lotes_cultura` | Abertura de uma cultura (cultura, identificação, recipiente, litragem, substrato, iluminação, aeração, ambiente, video_path, observações) |
 | `registros_diarios` | Acompanhamento diário de um lote (`lote_id`, temperatura da água, pH, amônia, nitrato, fosfato, ambiente, observações) |
 
 ### Rotina de manutenção
@@ -219,6 +219,7 @@ Histórico versionado em `supabase/migrations/`:
 - `003_limpeza_automatica.sql` — função de expurgo + agendamento `pg_cron`
 - `004_seguranca_pin.sql` — fecha escrita direta nas tabelas, move validação de PIN para funções RPC
 - `005_reforco_storage.sql` — restringe upload de vídeo por cultura válida, extensão e tamanho
+- `006_adicionar_video_lotes.sql` — adiciona coluna video_path em lotes_cultura, corrigindo incompatibilidade com o RPC criar_lote
 
 Documentação detalhada em `docs/banco-de-dados.md` e `supabase/README.md`.
 

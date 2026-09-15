@@ -8,6 +8,6 @@ Este documento estabelece os marcos de desenvolvimento do sistema, divididos ent
 
 ```text
  [FASE 1] Protótipo Funcional  ──────► CONCLUÍDO (100%)
- [FASE 2] Sistema Interno (Nuvem) ──► CONCLUÍDO (100%)
+ [FASE 2] Sistema Interno (Nuvem) ──► EM FINALIZAÇÃO (90%)
  [FASE 3] Consolidação & Métricas ──► EM ANDAMENTO (40%)
  [FASE 4] Produto SaaS Externo   ──► PLANEJADO (0%)

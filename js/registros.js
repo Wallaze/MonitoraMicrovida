@@ -167,7 +167,7 @@ export async function carregarHistorico() {
       if (filtroTipo === 'todos' || filtroTipo === 'inicio') {
         const { data: lotes } = await _supabase
           .from('lotes_cultura')
-          .select('*')
+          .select('*, operadores(nome)')
           .eq('cultura', CULTURA_ATUAL);
 
         (lotes || []).forEach(l => itens.push({ tipo: 'inicio', data: l }));
@@ -176,7 +176,7 @@ export async function carregarHistorico() {
       if (filtroTipo === 'todos' || filtroTipo === 'diaria') {
         const { data: diarios } = await _supabase
           .from('registros_diarios')
-          .select('*, lotes_cultura!inner(identificacao, cultura)')
+          .select('*, lotes_cultura!inner(identificacao, cultura), operadores(nome)')
           .eq('lotes_cultura.cultura', CULTURA_ATUAL);
 
         (diarios || []).forEach(d => itens.push({ tipo: 'diaria', data: d }));
@@ -201,6 +201,7 @@ export async function carregarHistorico() {
                 <p><strong>Aeração:</strong> ${l.aeracao ? '✅ Ativa' : '❌ Inativa'}</p>
               </div>
               ${l.video_path ? `<video src="${sanitizarEntrada(l.video_path)}" controls class="w-full h-24 rounded mt-1 bg-black object-cover"></video>` : ''}
+              <p><strong>Operador:</strong> ${sanitizarEntrada(l.operadores?.nome || 'N/I')}</p>
             </div>`;
         } else {
           const d = item.data;
@@ -218,6 +219,7 @@ export async function carregarHistorico() {
                 <p><strong>Amônia:</strong> ${d.amonia ?? 'N/I'} | <strong>Nitrato:</strong> ${d.nitrato ?? 'N/I'}</p>
               </div>
               ${d.video_path ? `<video src="${sanitizarEntrada(d.video_path)}" controls class="w-full h-24 rounded mt-1 bg-black object-cover"></video>` : ''}
+              <p><strong>Operador:</strong> ${sanitizarEntrada(d.operadores?.nome || 'N/I')}</p>
             </div>`;
         }
       }).join('');

@@ -1,8 +1,3 @@
----
-
-### 5. `docs/relatorio-tecnico.md`
-
-```markdown
 # 📊 Relatório Técnico do Projeto — MonitoraMicrovida
 
 Este documento sintetiza a arquitetura, as decisões de engenharia, a infraestrutura e a viabilidade operacional do **MonitoraMicrovida**.
@@ -22,13 +17,13 @@ O **MonitoraMicrovida** resolve esse problema centralizando o registro em uma ap
 ## 3. Síntese da Infraestrutura e Tecnologias
 
 ```text
-┌───────────────────┬─────────────────────────────────────────────────┐
-│ Camada            │ Tecnologias Adotadas                            │
-├───────────────────┼─────────────────────────────────────────────────┤
-│ Frontend          │ HTML5, CSS3, Tailwind CSS, Vanilla JS (ES6)     │
-│ Hardware / APIs   │ MediaRecorder API, Geolocation API, Open-Meteo │
-│ Persistência Nuvem│ Supabase Client (@supabase/supabase-js)         │
-│ Banco Relacional  │ PostgreSQL (Supabase)                           │
-│ Storage de Mídia  │ Supabase Storage (Bucket: videos-cultivo)       │
-│ Job Scheduler     │ PostgreSQL pg_cron                              │
-└───────────────────┴─────────────────────────────────────────────────┘
+┌────────────────────┬────────────────────────────────────────────────┐
+│ Camada             │ Tecnologias Adotadas                           │
+├────────────────────┼────────────────────────────────────────────────┤
+│ Frontend           │ HTML5, CSS3, Tailwind CSS, Vanilla JS (ES6)    │
+│ Hardware / APIs    │ MediaRecorder API, Geolocation API, Open-Meteo │
+│ Persistência Nuvem │ Supabase Client (@supabase/supabase-js)        │
+│ Banco Relacional   │ PostgreSQL (Supabase)                          │
+│ Storage de Mídia   │ Supabase Storage (Bucket: videos-cultivo)      │
+│ Job Scheduler      │ PostgreSQL pg_cron                             │
+└────────────────────┴────────────────────────────────────────────────┘
