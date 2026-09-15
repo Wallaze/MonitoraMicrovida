@@ -47,4 +47,32 @@ export function verificarAcessoPIN() {
 
 export function estaAutenticado() {
   return sessionStorage.getItem(CHAVE_SESSAO) === 'true';
+
+// Autenticação por PIN — o PIN fica em memória durante a sessão;
+// a validação real acontece no banco (funções RPC), não aqui.
+// ==========================================================================
+
+let pinAtual = null;
+
+export function estaAutenticado() {
+  return pinAtual !== null;
 }
+
+export function obterPin() {
+  return pinAtual;
+}
+
+export function verificarAcessoPIN() {
+  const pinInformado = prompt('🔒 Acesso Restrito: Digite seu PIN de operador:');
+
+  if (!pinInformado) {
+    return false;
+  }
+
+  pinAtual = pinInformado.trim();
+  return true;
+}
+
+// Chamada quando o banco rejeita o PIN — força pedir de novo na próxima ação
+export function limparAutenticacao() {
+  pinAtual = null;
